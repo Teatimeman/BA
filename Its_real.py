@@ -9,20 +9,20 @@ import numpy as np
 import tensorflow as tf
 
 import librosa
-import librosa.display
+#import librosa.display
 
 from python_speech_features import mfcc
 
-# needed library for display
-import matplotlib 
-matplotlib.use("nbagg")
-
-import matplotlib.pyplot as plt
-# Style for display
-import matplotlib.style as ms
-
-# IPython gives us an audio widget for playback
-from IPython.display import Audio
+## needed library for display
+#import matplotlib 
+#matplotlib.use("nbagg")
+#
+#import matplotlib.pyplot as plt
+## Style for display
+#import matplotlib.style as ms
+#
+## IPython gives us an audio widget for playback
+#from IPython.display import Audio
 
 # Parsen Textgrid
 import textgrid
@@ -40,7 +40,7 @@ n_mfcc = 40
 n_examples = 1 
 # rnn_size = Weights = input_dim + output_dim
 
-sig_orig, sr_orig = librosa.load("Daten_vowel_BA/RecordingVCP/new_data/male/004.wav.wav",sr= None)
+sig_orig, sr_orig = librosa.load("004.wav.wav",sr= None)
     
 print("sig: ",len(sig_orig)," sr: ",sr_orig)
 
@@ -78,7 +78,7 @@ print(mfcc_raw.shape)
 #
 
 T = textgrid.TextGrid();
-T.read("Daten_vowel_BA/RecordingVCP/male/004_wav.TextGrid")
+T.read("004_wav.TextGrid")
 
 w_tier = T.getFirst("Vokale").intervals
 
