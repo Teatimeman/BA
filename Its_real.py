@@ -11,6 +11,7 @@ import tensorflow as tf
 import librosa
 #import librosa.display
 
+
 from python_speech_features import mfcc
 
 ## needed library for display
@@ -120,7 +121,7 @@ words_data_onehot = tf.one_hot(words_data,
                               axis = 1,
                               dtype=tf.float32)                
 
-
+print(words_raw)
 with tf.Session() as sess: # convert from Tensor to numpy array
     words_label = words_data_onehot.eval()
 
@@ -155,7 +156,7 @@ def recurrent_neural_network():
     layer = {'weights':tf.Variable(tf.random_normal([rnn_size, words_label.shape[1]])),
              'biases':tf.Variable(tf.random_normal([words_label.shape[1]]))}
 
-    lstm_cell = rnn_cell.BasicLSTMCell(rnn_size,forget_bias=1.0, reuse=True)
+    lstm_cell = rnn_cell.BasicLSTMCell(rnn_size,forget_bias=1.0, reuse=tf.AUTO_REUSE)
 #    with tf.variable_scope('LSTM1'):
     
     outputs, states = rnn.dynamic_rnn(lstm_cell, x, dtype=tf.float32)
