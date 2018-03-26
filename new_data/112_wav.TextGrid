@@ -1,0 +1,1050 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 498.8734693877551 
+tiers? <exists> 
+size = 1 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Vokale" 
+        xmin = 0 
+        xmax = 498.8734693877551 
+        intervals: size = 259 
+        intervals [1]:
+            xmin = 0 
+            xmax = 10.930435866784299 
+            text = "" 
+        intervals [2]:
+            xmin = 10.930435866784299 
+            xmax = 11.0907663193096 
+            text = "head1" 
+        intervals [3]:
+            xmin = 11.0907663193096 
+            xmax = 12.345116330242828 
+            text = "" 
+        intervals [4]:
+            xmin = 12.345116330242828 
+            xmax = 12.505446782768129 
+            text = "head2" 
+        intervals [5]:
+            xmin = 12.505446782768129 
+            xmax = 13.76922799679108 
+            text = "" 
+        intervals [6]:
+            xmin = 13.76922799679108 
+            xmax = 13.910696043136934 
+            text = "head3" 
+        intervals [7]:
+            xmin = 13.910696043136934 
+            xmax = 26.164462148699716 
+            text = "" 
+        intervals [8]:
+            xmin = 26.164462148699716 
+            xmax = 26.324792601225017 
+            text = "who'd1" 
+        intervals [9]:
+            xmin = 26.324792601225017 
+            xmax = 27.409380956543224 
+            text = "" 
+        intervals [10]:
+            xmin = 27.409380956543224 
+            xmax = 27.598005018337695 
+            text = "who'd2" 
+        intervals [11]:
+            xmin = 27.598005018337695 
+            xmax = 28.871217435450372 
+            text = "" 
+        intervals [12]:
+            xmin = 28.871217435450372 
+            xmax = 29.012685481796222 
+            text = "who'd3" 
+        intervals [13]:
+            xmin = 29.012685481796222 
+            xmax = 40.167772161503216 
+            text = " " 
+        intervals [14]:
+            xmin = 40.167772161503216 
+            xmax = 40.23850618467615 
+            text = "bet1" 
+        intervals [15]:
+            xmin = 40.23850618467615 
+            xmax = 41.49757179715424 
+            text = "" 
+        intervals [16]:
+            xmin = 41.49757179715424 
+            xmax = 41.57773702341689 
+            text = "bet2" 
+        intervals [17]:
+            xmin = 41.57773702341689 
+            xmax = 42.8839586513436 
+            text = "" 
+        intervals [18]:
+            xmin = 42.8839586513436 
+            xmax = 42.94997707297166 
+            text = "bet3" 
+        intervals [19]:
+            xmin = 42.94997707297166 
+            xmax = 53.99528821262659 
+            text = "" 
+        intervals [20]:
+            xmin = 53.99528821262659 
+            xmax = 54.146187462062166 
+            text = "beat1" 
+        intervals [21]:
+            xmin = 54.146187462062166 
+            xmax = 55.240207020470095 
+            text = "" 
+        intervals [22]:
+            xmin = 55.240207020470095 
+            xmax = 55.343950254457056 
+            text = "beat2" 
+        intervals [23]:
+            xmin = 55.343950254457056 
+            xmax = 56.456832219044436 
+            text = "" 
+        intervals [24]:
+            xmin = 56.456832219044436 
+            xmax = 56.57943785921084 
+            text = "beat3" 
+        intervals [25]:
+            xmin = 56.57943785921084 
+            xmax = 67.62644483054537 
+            text = "" 
+        intervals [26]:
+            xmin = 67.62644483054537 
+            xmax = 67.70189445526314 
+            text = "book1" 
+        intervals [27]:
+            xmin = 67.70189445526314 
+            xmax = 68.74568341715651 
+            text = "" 
+        intervals [28]:
+            xmin = 68.74568341715651 
+            xmax = 68.79283943260514 
+            text = "book2" 
+        intervals [29]:
+            xmin = 68.79283943260514 
+            xmax = 69.92929940491682 
+            text = "" 
+        intervals [30]:
+            xmin = 69.92929940491682 
+            xmax = 69.9811710219103 
+            text = "book3" 
+        intervals [31]:
+            xmin = 69.9811710219103 
+            xmax = 80.7855483049494 
+            text = "" 
+        intervals [32]:
+            xmin = 80.7855483049494 
+            xmax = 80.92701635129527 
+            text = "bought1" 
+        intervals [33]:
+            xmin = 80.92701635129527 
+            xmax = 81.85127425408817 
+            text = "" 
+        intervals [34]:
+            xmin = 81.85127425408817 
+            xmax = 82.03989831588264 
+            text = "bought2" 
+        intervals [35]:
+            xmin = 82.03989831588264 
+            xmax = 83.12448667120084 
+            text = "" 
+        intervals [36]:
+            xmin = 83.12448667120084 
+            xmax = 83.28481712372614 
+            text = "bought3" 
+        intervals [37]:
+            xmin = 83.28481712372614 
+            xmax = 94.52538724171397 
+            text = "" 
+        intervals [38]:
+            xmin = 94.52538724171397 
+            xmax = 94.68571769423926 
+            text = "hood1" 
+        intervals [39]:
+            xmin = 94.68571769423926 
+            xmax = 95.73258123719857 
+            text = "" 
+        intervals [40]:
+            xmin = 95.73258123719857 
+            xmax = 95.85518687736499 
+            text = "hood2" 
+        intervals [41]:
+            xmin = 95.85518687736499 
+            xmax = 96.93034402959347 
+            text = "" 
+        intervals [42]:
+            xmin = 96.93034402959347 
+            xmax = 97.07181207593932 
+            text = "hood3" 
+        intervals [43]:
+            xmin = 97.07181207593932 
+            xmax = 108.08647230442612 
+            text = "" 
+        intervals [44]:
+            xmin = 108.08647230442612 
+            xmax = 108.21850914768225 
+            text = "boat1" 
+        intervals [45]:
+            xmin = 108.21850914768225 
+            xmax = 109.21821667519295 
+            text = "" 
+        intervals [46]:
+            xmin = 109.21821667519295 
+            xmax = 109.33139111226963 
+            text = "boat2" 
+        intervals [47]:
+            xmin = 109.33139111226963 
+            xmax = 110.47256668612619 
+            text = "" 
+        intervals [48]:
+            xmin = 110.47256668612619 
+            xmax = 110.59517232629258 
+            text = "boat3" 
+        intervals [49]:
+            xmin = 110.59517232629258 
+            xmax = 120.35054695110166 
+            text = "" 
+        intervals [50]:
+            xmin = 120.35054695110166 
+            xmax = 120.49201499744751 
+            text = "bat1" 
+        intervals [51]:
+            xmin = 120.49201499744751 
+            xmax = 121.47286011877875 
+            text = "" 
+        intervals [52]:
+            xmin = 121.47286011877875 
+            xmax = 121.57660335276572 
+            text = "bat2" 
+        intervals [53]:
+            xmin = 121.57660335276572 
+            xmax = 122.68948531735309 
+            text = "" 
+        intervals [54]:
+            xmin = 122.68948531735309 
+            xmax = 122.79322855134005 
+            text = "bat3" 
+        intervals [55]:
+            xmin = 122.79322855134005 
+            xmax = 133.08168639135485 
+            text = "" 
+        intervals [56]:
+            xmin = 133.08168639135485 
+            xmax = 133.23258564079043 
+            text = "hide1" 
+        intervals [57]:
+            xmin = 133.23258564079043 
+            xmax = 134.0248067003272 
+            text = "" 
+        intervals [58]:
+            xmin = 134.0248067003272 
+            xmax = 134.2228619652114 
+            text = "hide2" 
+        intervals [59]:
+            xmin = 134.2228619652114 
+            xmax = 135.15655107109401 
+            text = "" 
+        intervals [60]:
+            xmin = 135.15655107109401 
+            xmax = 135.31688152361932 
+            text = "hide" 
+        intervals [61]:
+            xmin = 135.31688152361932 
+            xmax = 145.40728359987642 
+            text = "" 
+        intervals [62]:
+            xmin = 145.40728359987642 
+            xmax = 145.6336324740298 
+            text = "hayed1" 
+        intervals [63]:
+            xmin = 145.6336324740298 
+            xmax = 146.49187195519463 
+            text = "" 
+        intervals [64]:
+            xmin = 146.49187195519463 
+            xmax = 146.6427712046302 
+            text = "hayed2" 
+        intervals [65]:
+            xmin = 146.6427712046302 
+            xmax = 147.49157948270533 
+            text = "" 
+        intervals [66]:
+            xmin = 147.49157948270533 
+            xmax = 147.67077234141007 
+            text = "hayed2" 
+        intervals [67]:
+            xmin = 147.67077234141007 
+            xmax = 149.3324167811332 
+            text = "" 
+        intervals [68]:
+            xmin = 149.3324167811332 
+            xmax = 149.4644536243893 
+            text = "beat1" 
+        intervals [69]:
+            xmin = 149.4644536243893 
+            xmax = 150.64335401060475 
+            text = "" 
+        intervals [70]:
+            xmin = 150.64335401060475 
+            xmax = 150.72823483841228 
+            text = "beat2" 
+        intervals [71]:
+            xmin = 150.72823483841228 
+            xmax = 151.76566717828186 
+            text = "" 
+        intervals [72]:
+            xmin = 151.76566717828186 
+            xmax = 151.86941041226882 
+            text = "beat3" 
+        intervals [73]:
+            xmin = 151.86941041226882 
+            xmax = 157.17194421575914 
+            text = "" 
+        intervals [74]:
+            xmin = 157.17194421575914 
+            xmax = 157.29454985592557 
+            text = "hid1" 
+        intervals [75]:
+            xmin = 157.29454985592557 
+            xmax = 158.13392693091095 
+            text = "" 
+        intervals [76]:
+            xmin = 158.13392693091095 
+            xmax = 158.2753949772568 
+            text = "hid2" 
+        intervals [77]:
+            xmin = 158.2753949772568 
+            xmax = 159.17135927078053 
+            text = "" 
+        intervals [78]:
+            xmin = 159.17135927078053 
+            xmax = 159.25624009858805 
+            text = "hid3" 
+        intervals [79]:
+            xmin = 159.25624009858805 
+            xmax = 168.56297160528942 
+            text = "" 
+        intervals [80]:
+            xmin = 168.56297160528942 
+            xmax = 168.74216446399416 
+            text = "hoyed1" 
+        intervals [81]:
+            xmin = 168.74216446399416 
+            xmax = 169.63812875751788 
+            text = "" 
+        intervals [82]:
+            xmin = 169.63812875751788 
+            xmax = 169.82675281931236 
+            text = "hoyed2" 
+        intervals [83]:
+            xmin = 169.82675281931236 
+            xmax = 170.70385470665664 
+            text = "" 
+        intervals [84]:
+            xmin = 170.70385470665664 
+            xmax = 170.85475395609222 
+            text = "hoyed3" 
+        intervals [85]:
+            xmin = 170.85475395609222 
+            xmax = 180.22344925422263 
+            text = "" 
+        intervals [86]:
+            xmin = 180.22344925422263 
+            xmax = 180.40264211292737 
+            text = "herd1" 
+        intervals [87]:
+            xmin = 180.40264211292737 
+            xmax = 181.17600076628472 
+            text = "" 
+        intervals [88]:
+            xmin = 181.17600076628472 
+            xmax = 181.33633121881002 
+            text = "herd2" 
+        intervals [89]:
+            xmin = 181.33633121881002 
+            xmax = 182.08139626289815 
+            text = "" 
+        intervals [90]:
+            xmin = 182.08139626289815 
+            xmax = 182.28888273087207 
+            text = "herd3" 
+        intervals [91]:
+            xmin = 182.28888273087207 
+            xmax = 191.13392751350682 
+            text = "" 
+        intervals [92]:
+            xmin = 191.13392751350682 
+            xmax = 191.21880834131434 
+            text = "but1" 
+        intervals [93]:
+            xmin = 191.21880834131434 
+            xmax = 192.2373782750045 
+            text = "" 
+        intervals [94]:
+            xmin = 192.2373782750045 
+            xmax = 192.3316903059017 
+            text = "but2" 
+        intervals [95]:
+            xmin = 192.3316903059017 
+            xmax = 193.3313978334124 
+            text = "" 
+        intervals [96]:
+            xmin = 193.3313978334124 
+            xmax = 193.42570986430965 
+            text = "but3" 
+        intervals [97]:
+            xmin = 193.42570986430965 
+            xmax = 202.41671880250902 
+            text = "" 
+        intervals [98]:
+            xmin = 202.41671880250902 
+            xmax = 202.64306767666238 
+            text = "hoed1" 
+        intervals [99]:
+            xmin = 202.64306767666238 
+            xmax = 203.36927031457108 
+            text = "" 
+        intervals [100]:
+            xmin = 203.36927031457108 
+            xmax = 203.6144815949039 
+            text = "hoed2" 
+        intervals [101]:
+            xmin = 203.6144815949039 
+            xmax = 204.39727145135095 
+            text = "" 
+        intervals [102]:
+            xmin = 204.39727145135095 
+            xmax = 204.5387394976968 
+            text = "hoed3" 
+        intervals [103]:
+            xmin = 204.5387394976968 
+            xmax = 213.45923565110655 
+            text = "" 
+        intervals [104]:
+            xmin = 213.45923565110655 
+            xmax = 213.647859712901 
+            text = "bait1" 
+        intervals [105]:
+            xmin = 213.647859712901 
+            xmax = 214.3269063353611 
+            text = "" 
+        intervals [106]:
+            xmin = 214.3269063353611 
+            xmax = 214.45894317861723 
+            text = "bait2" 
+        intervals [107]:
+            xmin = 214.45894317861723 
+            xmax = 215.24173303506427 
+            text = "" 
+        intervals [108]:
+            xmin = 215.24173303506427 
+            xmax = 215.3643386752307 
+            text = "bait3" 
+        intervals [109]:
+            xmin = 215.3643386752307 
+            xmax = 224.20938270955526 
+            text = "" 
+        intervals [110]:
+            xmin = 224.20938270955526 
+            xmax = 224.35085075590112 
+            text = "hewed1" 
+        intervals [111]:
+            xmin = 224.35085075590112 
+            xmax = 225.19965903397622 
+            text = "" 
+        intervals [112]:
+            xmin = 225.19965903397622 
+            xmax = 225.3882830957707 
+            text = "hewed2" 
+        intervals [113]:
+            xmin = 225.3882830957707 
+            xmax = 226.13334813985884 
+            text = "" 
+        intervals [114]:
+            xmin = 226.13334813985884 
+            xmax = 226.3031097954739 
+            text = "hewed3" 
+        intervals [115]:
+            xmin = 226.3031097954739 
+            xmax = 235.02554893794226 
+            text = "" 
+        intervals [116]:
+            xmin = 235.02554893794226 
+            xmax = 235.19531059355728 
+            text = "hard1" 
+        intervals [117]:
+            xmin = 235.19531059355728 
+            xmax = 235.89321962219682 
+            text = "" 
+        intervals [118]:
+            xmin = 235.89321962219682 
+            xmax = 236.05355007472212 
+            text = "hard2" 
+        intervals [119]:
+            xmin = 236.05355007472212 
+            xmax = 236.87406474352807 
+            text = "" 
+        intervals [120]:
+            xmin = 236.87406474352807 
+            xmax = 237.06268880532252 
+            text = "hard3" 
+        intervals [121]:
+            xmin = 237.06268880532252 
+            xmax = 245.7186707909473 
+            text = "" 
+        intervals [122]:
+            xmin = 245.7186707909473 
+            xmax = 245.88843244656232 
+            text = "hawed1" 
+        intervals [123]:
+            xmin = 245.88843244656232 
+            xmax = 246.65235989682992 
+            text = "" 
+        intervals [124]:
+            xmin = 246.65235989682992 
+            xmax = 246.8032591462655 
+            text = "hawed2" 
+        intervals [125]:
+            xmin = 246.8032591462655 
+            xmax = 247.58604900271254 
+            text = "" 
+        intervals [126]:
+            xmin = 247.58604900271254 
+            xmax = 247.73694825214812 
+            text = "hawed3" 
+        intervals [127]:
+            xmin = 247.73694825214812 
+            xmax = 256.7440739383094 
+            text = "" 
+        intervals [128]:
+            xmin = 256.7440739383094 
+            xmax = 256.79122995375803 
+            text = "bit1" 
+        intervals [129]:
+            xmin = 256.79122995375803 
+            xmax = 257.69662545037147 
+            text = "" 
+        intervals [130]:
+            xmin = 257.69662545037147 
+            xmax = 257.7532126689098 
+            text = "bit2" 
+        intervals [131]:
+            xmin = 257.7532126689098 
+            xmax = 258.68690177479243 
+            text = "" 
+        intervals [132]:
+            xmin = 258.68690177479243 
+            xmax = 258.74348899333074 
+            text = "bit3" 
+        intervals [133]:
+            xmin = 258.74348899333074 
+            xmax = 267.76191382093134 
+            text = "" 
+        intervals [134]:
+            xmin = 267.76191382093134 
+            xmax = 267.89395066418746 
+            text = "hud1" 
+        intervals [135]:
+            xmin = 267.89395066418746 
+            xmax = 268.6673093175448 
+            text = "" 
+        intervals [136]:
+            xmin = 268.6673093175448 
+            xmax = 268.77105255153174 
+            text = "hud2" 
+        intervals [137]:
+            xmin = 268.77105255153174 
+            xmax = 269.57270481415827 
+            text = "" 
+        intervals [138]:
+            xmin = 269.57270481415827 
+            xmax = 269.6764480481452 
+            text = "hud3" 
+        intervals [139]:
+            xmin = 269.6764480481452 
+            xmax = 278.13661446736455 
+            text = "" 
+        intervals [140]:
+            xmin = 278.13661446736455 
+            xmax = 278.2969449198898 
+            text = "heed1" 
+        intervals [141]:
+            xmin = 278.2969449198898 
+            xmax = 279.07030357324714 
+            text = "" 
+        intervals [142]:
+            xmin = 279.07030357324714 
+            xmax = 279.2400652288622 
+            text = "heed2" 
+        intervals [143]:
+            xmin = 279.2400652288622 
+            xmax = 280.02285508530923 
+            text = "" 
+        intervals [144]:
+            xmin = 280.02285508530923 
+            xmax = 280.1265983192962 
+            text = "heed3" 
+        intervals [145]:
+            xmin = 280.1265983192962 
+            xmax = 288.81580875862437 
+            text = "" 
+        intervals [146]:
+            xmin = 288.81580875862437 
+            xmax = 288.94784560188054 
+            text = "hod1" 
+        intervals [147]:
+            xmin = 288.94784560188054 
+            xmax = 289.68347944287893 
+            text = "" 
+        intervals [148]:
+            xmin = 289.68347944287893 
+            xmax = 289.80608508304533 
+            text = "hod2" 
+        intervals [149]:
+            xmin = 289.80608508304533 
+            xmax = 290.72091178274854 
+            text = "" 
+        intervals [150]:
+            xmin = 290.72091178274854 
+            xmax = 290.8246550167355 
+            text = "hod3" 
+        intervals [151]:
+            xmin = 290.8246550167355 
+            xmax = 299.34366107424523 
+            text = "" 
+        intervals [152]:
+            xmin = 299.34366107424523 
+            xmax = 299.52285393295 
+            text = "hoard1" 
+        intervals [153]:
+            xmin = 299.52285393295 
+            xmax = 300.30564378939704 
+            text = "" 
+        intervals [154]:
+            xmin = 300.30564378939704 
+            xmax = 300.42824942956344 
+            text = "hoard2" 
+        intervals [155]:
+            xmin = 300.42824942956344 
+            xmax = 301.2393328952797 
+            text = "" 
+        intervals [156]:
+            xmin = 301.2393328952797 
+            xmax = 301.4090945508947 
+            text = "hoard" 
+        intervals [157]:
+            xmin = 301.4090945508947 
+            xmax = 310.14995711489024 
+            text = "" 
+        intervals [158]:
+            xmin = 310.14995711489024 
+            xmax = 310.329149973595 
+            text = "boot1" 
+        intervals [159]:
+            xmin = 310.329149973595 
+            xmax = 311.08989801916414 
+            text = "" 
+        intervals [160]:
+            xmin = 311.08989801916414 
+            xmax = 311.1936412531511 
+            text = "boot2" 
+        intervals [161]:
+            xmin = 311.1936412531511 
+            xmax = 312.05188073431594 
+            text = "" 
+        intervals [162]:
+            xmin = 312.05188073431594 
+            xmax = 312.2310735930207 
+            text = "boot3" 
+        intervals [163]:
+            xmin = 312.2310735930207 
+            xmax = 320.8628188445059 
+            text = "" 
+        intervals [164]:
+            xmin = 320.8628188445059 
+            xmax = 321.00428689085174 
+            text = "how'd1" 
+        intervals [165]:
+            xmin = 321.00428689085174 
+            xmax = 321.7965079503885 
+            text = "" 
+        intervals [166]:
+            xmin = 321.7965079503885 
+            xmax = 321.9474071998241 
+            text = "how'd2" 
+        intervals [167]:
+            xmin = 321.9474071998241 
+            xmax = 322.7827269008063 
+            text = "" 
+        intervals [168]:
+            xmin = 322.7827269008063 
+            xmax = 322.93362615024193 
+            text = "how'd3" 
+        intervals [169]:
+            xmin = 322.93362615024193 
+            xmax = 331.5128415571919 
+            text = "" 
+        intervals [170]:
+            xmin = 331.5128415571919 
+            xmax = 331.6826032128069 
+            text = "had1" 
+        intervals [171]:
+            xmin = 331.6826032128069 
+            xmax = 332.41417992923897 
+            text = "" 
+        intervals [172]:
+            xmin = 332.41417992923897 
+            xmax = 332.53678556940537 
+            text = "had2" 
+        intervals [173]:
+            xmin = 332.53678556940537 
+            xmax = 333.2064009887757 
+            text = "" 
+        intervals [174]:
+            xmin = 333.2064009887757 
+            xmax = 333.3573002382113 
+            text = "had3" 
+        intervals [175]:
+            xmin = 333.3573002382113 
+            xmax = 406.09458061123144 
+            text = "" 
+        intervals [176]:
+            xmin = 406.09458061123144 
+            xmax = 406.1605990328595 
+            text = "" 
+        intervals [177]:
+            xmin = 406.1605990328595 
+            xmax = 407.7288661591704 
+            text = "" 
+        intervals [178]:
+            xmin = 407.7288661591704 
+            xmax = 407.776022174619 
+            text = "hid" 
+        intervals [179]:
+            xmin = 407.776022174619 
+            xmax = 408.9153890526737 
+            text = "" 
+        intervals [180]:
+            xmin = 408.9153890526737 
+            xmax = 408.9861230758466 
+            text = "but" 
+        intervals [181]:
+            xmin = 408.9861230758466 
+            xmax = 411.24577493345026 
+            text = "" 
+        intervals [182]:
+            xmin = 411.24577493345026 
+            xmax = 411.35894937052694 
+            text = "head" 
+        intervals [183]:
+            xmin = 411.35894937052694 
+            xmax = 413.61772251051576 
+            text = "" 
+        intervals [184]:
+            xmin = 413.61772251051576 
+            xmax = 413.72618134604755 
+            text = "hard" 
+        intervals [185]:
+            xmin = 413.72618134604755 
+            xmax = 414.9151721606414 
+            text = "" 
+        intervals [186]:
+            xmin = 414.9151721606414 
+            xmax = 414.9764749807247 
+            text = "beat" 
+        intervals [187]:
+            xmin = 414.9764749807247 
+            xmax = 416.23082499165787 
+            text = "" 
+        intervals [188]:
+            xmin = 416.23082499165787 
+            xmax = 416.2779810071065 
+            text = "but" 
+        intervals [189]:
+            xmin = 416.2779810071065 
+            xmax = 417.29655094079664 
+            text = "" 
+        intervals [190]:
+            xmin = 417.29655094079664 
+            xmax = 417.386147370149 
+            text = "bait" 
+        intervals [191]:
+            xmin = 417.386147370149 
+            xmax = 420.4175686776343 
+            text = "" 
+        intervals [192]:
+            xmin = 420.4175686776343 
+            xmax = 420.50716510698663 
+            text = "bet" 
+        intervals [193]:
+            xmin = 420.50716510698663 
+            xmax = 424.13165424862007 
+            text = "" 
+        intervals [194]:
+            xmin = 424.13165424862007 
+            xmax = 424.2259662795173 
+            text = "bat" 
+        intervals [195]:
+            xmin = 424.2259662795173 
+            xmax = 424.3438563181388 
+            text = "" 
+        intervals [196]:
+            xmin = 424.3438563181388 
+            xmax = 424.4098747397669 
+            text = "had" 
+        intervals [197]:
+            xmin = 424.4098747397669 
+            xmax = 430.0400319819968 
+            text = "" 
+        intervals [198]:
+            xmin = 430.0400319819968 
+            xmax = 430.14377521598374 
+            text = "hayed" 
+        intervals [199]:
+            xmin = 430.14377521598374 
+            xmax = 431.81375713871677 
+            text = "" 
+        intervals [200]:
+            xmin = 431.81375713871677 
+            xmax = 431.86091315416536 
+            text = "but" 
+        intervals [201]:
+            xmin = 431.86091315416536 
+            xmax = 433.3469866166488 
+            text = "" 
+        intervals [202]:
+            xmin = 433.3469866166488 
+            xmax = 433.3988582336423 
+            text = "had" 
+        intervals [203]:
+            xmin = 433.3988582336423 
+            xmax = 437.74752157561966 
+            text = "" 
+        intervals [204]:
+            xmin = 437.74752157561966 
+            xmax = 437.82297120033746 
+            text = "hood" 
+        intervals [205]:
+            xmin = 437.82297120033746 
+            xmax = 440.59683413893475 
+            text = "" 
+        intervals [206]:
+            xmin = 440.59683413893475 
+            xmax = 440.6769993651974 
+            text = "bit" 
+        intervals [207]:
+            xmin = 440.6769993651974 
+            xmax = 442.24795390492505 
+            text = "" 
+        intervals [208]:
+            xmin = 442.24795390492505 
+            xmax = 442.36112834200173 
+            text = "hoard" 
+        intervals [209]:
+            xmin = 442.36112834200173 
+            xmax = 443.0543217690964 
+            text = "" 
+        intervals [210]:
+            xmin = 443.0543217690964 
+            xmax = 443.1250557922694 
+            text = "had" 
+        intervals [211]:
+            xmin = 443.1250557922694 
+            xmax = 443.62534903955043 
+            text = "" 
+        intervals [212]:
+            xmin = 443.62534903955043 
+            xmax = 443.6772206565439 
+            text = "but" 
+        intervals [213]:
+            xmin = 443.6772206565439 
+            xmax = 443.9507255461459 
+            text = "" 
+        intervals [214]:
+            xmin = 443.9507255461459 
+            xmax = 444.02145956931884 
+            text = "hud" 
+        intervals [215]:
+            xmin = 444.02145956931884 
+            xmax = 448.29982837164914 
+            text = "" 
+        intervals [216]:
+            xmin = 448.29982837164914 
+            xmax = 448.40828720718093 
+            text = "hawed" 
+        intervals [217]:
+            xmin = 448.40828720718093 
+            xmax = 450.8868849239763 
+            text = "" 
+        intervals [218]:
+            xmin = 450.8868849239763 
+            xmax = 450.96705015023895 
+            text = "hod" 
+        intervals [219]:
+            xmin = 450.96705015023895 
+            xmax = 451.9761888808394 
+            text = "" 
+        intervals [220]:
+            xmin = 451.9761888808394 
+            xmax = 452.04220730246743 
+            text = "had" 
+        intervals [221]:
+            xmin = 452.04220730246743 
+            xmax = 454.83762953925685 
+            text = "" 
+        intervals [222]:
+            xmin = 454.83762953925685 
+            xmax = 454.8942167577952 
+            text = "had" 
+        intervals [223]:
+            xmin = 454.8942167577952 
+            xmax = 455.08755642113454 
+            text = "" 
+        intervals [224]:
+            xmin = 455.08755642113454 
+            xmax = 455.21016206130093 
+            text = "hoed" 
+        intervals [225]:
+            xmin = 455.21016206130093 
+            xmax = 460.31398087574496 
+            text = "" 
+        intervals [226]:
+            xmin = 460.31398087574496 
+            xmax = 460.37999929737305 
+            text = "heed" 
+        intervals [227]:
+            xmin = 460.37999929737305 
+            xmax = 461.2975131610562 
+            text = "" 
+        intervals [228]:
+            xmin = 461.2975131610562 
+            xmax = 461.3305223718702 
+            text = "but" 
+        intervals [229]:
+            xmin = 461.3305223718702 
+            xmax = 461.44841241049176 
+            text = "" 
+        intervals [230]:
+            xmin = 461.44841241049176 
+            xmax = 461.542724441389 
+            text = "who'd" 
+        intervals [231]:
+            xmin = 461.542724441389 
+            xmax = 464.8822490527661 
+            text = "" 
+        intervals [232]:
+            xmin = 464.8822490527661 
+            xmax = 464.9907078882979 
+            text = "hoyed" 
+        intervals [233]:
+            xmin = 464.9907078882979 
+            xmax = 466.39124154712187 
+            text = "" 
+        intervals [234]:
+            xmin = 466.39124154712187 
+            xmax = 466.42896635948074 
+            text = "but" 
+        intervals [235]:
+            xmin = 466.42896635948074 
+            xmax = 468.0946716653212 
+            text = "" 
+        intervals [236]:
+            xmin = 468.0946716653212 
+            xmax = 468.170121290039 
+            text = "had" 
+        intervals [237]:
+            xmin = 468.170121290039 
+            xmax = 469.90365396274615 
+            text = "had" 
+        intervals [238]:
+            xmin = 469.90365396274615 
+            xmax = 470.04040640754715 
+            text = "hide" 
+        intervals [239]:
+            xmin = 470.04040640754715 
+            xmax = 470.3091956956043 
+            text = "" 
+        intervals [240]:
+            xmin = 470.3091956956043 
+            xmax = 470.36106731259775 
+            text = "but" 
+        intervals [241]:
+            xmin = 470.36106731259775 
+            xmax = 472.9169233499128 
+            text = "" 
+        intervals [242]:
+            xmin = 472.9169233499128 
+            xmax = 473.0065197792652 
+            text = "how'd" 
+        intervals [243]:
+            xmin = 473.0065197792652 
+            xmax = 474.71713342009997 
+            text = "" 
+        intervals [244]:
+            xmin = 474.71713342009997 
+            xmax = 474.83030785717665 
+            text = "hewed" 
+        intervals [245]:
+            xmin = 474.83030785717665 
+            xmax = 479.61505447117247 
+            text = "" 
+        intervals [246]:
+            xmin = 479.61505447117247 
+            xmax = 479.73766011133887 
+            text = "boat" 
+        intervals [247]:
+            xmin = 479.73766011133887 
+            xmax = 479.96220053912697 
+            text = "" 
+        intervals [248]:
+            xmin = 479.96220053912697 
+            xmax = 480.13196219474196 
+            text = "bought" 
+        intervals [249]:
+            xmin = 480.13196219474196 
+            xmax = 480.4196138889785 
+            text = "" 
+        intervals [250]:
+            xmin = 480.4196138889785 
+            xmax = 480.4762011075169 
+            text = "but" 
+        intervals [251]:
+            xmin = 480.4762011075169 
+            xmax = 481.49005543966217 
+            text = "" 
+        intervals [252]:
+            xmin = 481.49005543966217 
+            xmax = 481.57493626746964 
+            text = "book" 
+        intervals [253]:
+            xmin = 481.57493626746964 
+            xmax = 483.3192180949706 
+            text = "" 
+        intervals [254]:
+            xmin = 483.3192180949706 
+            xmax = 483.3663741104192 
+            text = "but" 
+        intervals [255]:
+            xmin = 483.3663741104192 
+            xmax = 485.05455946347973 
+            text = "" 
+        intervals [256]:
+            xmin = 485.05455946347973 
+            xmax = 485.1583026974667 
+            text = "boot" 
+        intervals [257]:
+            xmin = 485.1583026974667 
+            xmax = 490.9189590894858 
+            text = "" 
+        intervals [258]:
+            xmin = 490.9189590894858 
+            xmax = 491.03213352656246 
+            text = "bost" 
+        intervals [259]:
+            xmin = 491.03213352656246 
+            xmax = 498.8734693877551 
+            text = "" 

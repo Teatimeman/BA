@@ -41,7 +41,7 @@ n_mfcc = 40
 n_examples = 1 
 # rnn_size = Weights = input_dim + output_dim
 
-sig_orig, sr_orig = librosa.load("004.wav.wav",sr= None)
+sig_orig, sr_orig = librosa.load("new_data/004.wav.wav",sr= None)
     
 print("sig: ",len(sig_orig)," sr: ",sr_orig)
 
@@ -79,7 +79,7 @@ print(mfcc_raw.shape)
 #
 
 T = textgrid.TextGrid();
-T.read("004_wav.TextGrid")
+T.read("new_data/004_wav.TextGrid")
 
 w_tier = T.getFirst("Vokale").intervals
 
@@ -121,7 +121,7 @@ words_data_onehot = tf.one_hot(words_data,
                               axis = 1,
                               dtype=tf.float32)                
 
-print(words_raw)
+
 with tf.Session() as sess: # convert from Tensor to numpy array
     words_label = words_data_onehot.eval()
 
@@ -156,7 +156,7 @@ def recurrent_neural_network():
     layer = {'weights':tf.Variable(tf.random_normal([rnn_size, words_label.shape[1]])),
              'biases':tf.Variable(tf.random_normal([words_label.shape[1]]))}
 
-    lstm_cell = rnn_cell.BasicLSTMCell(rnn_size,forget_bias=1.0, reuse=tf.AUTO_REUSE)
+    lstm_cell = rnn_cell.BasicLSTMCell(rnn_size,forget_bias=1.0, reuse=None)
 #    with tf.variable_scope('LSTM1'):
     
     outputs, states = rnn.dynamic_rnn(lstm_cell, x, dtype=tf.float32)
@@ -192,19 +192,19 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=5):
                   'loss:', str(epoch_loss),
                   'average loss', str(average_loss))
             epoch += 1
-            
-        pred_out = sess.run(prediction, feed_dict={x: epoch_x})
-        pred_out = np.argmax(pred_out, 1)
-            
-        
-        correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
-
-        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        test = []
-        test.append(prediction)
-        print(test)
-        
-#        print('Accuracy:',accuracy.eval({x:speech_data.reshape((-1, n_chunks, chunk_size)), y:speech_data.labels}))
+#            
+#        pred_out = sess.run(prediction, feed_dict={x: epoch_x})
+#        pred_out = np.argmax(pred_out, 1)
+#            
+#        
+#        correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+#
+#        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
+#        test = []
+#        test.append(prediction)
+#        print(test)
+#        
+##        print('Accuracy:',accuracy.eval({x:speech_data.reshape((-1, n_chunks, chunk_size)), y:speech_data.labels}))
 
 
 train_neural_network()
