@@ -94,12 +94,12 @@ def get_label(audioSignal,number):
     words_raw = []
     for t in time_mark:       
         if t > xmin1 and t <= xmax1:
-           words_raw.append(1.0)
+           words_raw.append([0.0,1.0])
         elif t > xmin2 and t <= xmax2:
-           words_raw.append(1.0)
+           words_raw.append([0.0,1.0])
         elif t > xmin3 and t <= xmax3:
-           words_raw.append(1.0)
-        else: words_raw.append(0.0) 
+           words_raw.append([0.0,1.0])
+        else: words_raw.append([1.0,0.0]) 
  
     #words_raw = [None,None,None,..,1.WORT,1.WORT,1.WORT,...]
     words_label = np.asarray(words_raw, dtype = float)
@@ -135,7 +135,7 @@ def prepare_data(folder):
 # batch_Size, Sequence_length, n_mfcc
 x = tf.placeholder(tf.float32, [None, None, n_mfcc])
 # batch_Size, Sequence_length_labels
-y = tf.placeholder(tf.float32, [None, None])
+y = tf.placeholder(tf.float32, [None, None,2])
 
 rnn_size = 512
 
@@ -144,8 +144,8 @@ rnn_size = 512
 def recurrent_neural_network():
 #     x = tf.reshape(x, [-1, chunk_size])
     # x = tf.split(x, n_chunks)
-    layer = {'weights':tf.Variable(tf.random_normal([rnn_size,1])),
-             'biases':tf.Variable(tf.random_normal([1]))}
+    layer = {'weights':tf.Variable(tf.random_normal([rnn_size,2])),
+             'biases':tf.Variable(tf.random_normal([2]))}
     
     lstm_cell = rnn_cell.LSTMCell(rnn_size,reuse=None)
  
@@ -168,7 +168,7 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=100):
     # oder netz ist nicht mit der loss funktion verbunden
     ## sigmoid konstante C um 0 und 1 auszugleichen 
     
-    cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y, logits = prediction))
+    cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y[-1], logits = prediction))
  
     optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost)
     
@@ -177,7 +177,7 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=100):
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
                 
-        train_dict = {x: x_data, y: y_data}
+#        train_dict = {x: x_data, y: y_data}
 #        test_dict = {x: x_test, y: y_test}
         
 #        print("Initial training loss: " + str(sess.run(cost, train_dict)))
@@ -197,7 +197,7 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=100):
                  
                 epoch_x = x_sample.reshape((1,x_sample.shape[0],x_sample.shape[1]))
                 
-                epoch_y = y_sample.reshape((1,y_sample.shape[0]))
+                epoch_y = y_sample.reshape((1,y_sample.shape[0],y_sample.shape[1]))
                 
                 
                 
@@ -214,17 +214,24 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=100):
         
         print("Model saved in path: %s" % save_path)
 
-
-    with tf.session as sess:
-        sess.run(tf.global_variables_initializer())
 #        
 #        saver.restore(sess,"models/model.ckpt")
         
-        y_prediction = sess.run(prediction, feed_dict={x: epoch_x})
-        print(y_prediction)
-        y_prediction = np.argmax(y_prediction, 1)
+        
+        test_x = get_mfcc("Test_Data/142_slices/142_part_1") 
+        test_y = get_label("Test_Data/142_slices/142_part_1", 142)
+        test_x = test_x.reshape((1,test_x.shape[0],test_x.shape[1]))
+        
+        y_prediction = sess.run(prediction, feed_dict={x: test_x})
         print(y_prediction) 
-                
+        y_prediction = np.argmax(y_prediction, 1)
+        y_labeled = np.argmax(test_y,1)
+        print(y_prediction) 
+        print(y_labeled)     
+        
+        
+#        correct = tf.equal(y_prediction,y_labeled)
+#        print(correct)
 #        correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
 #
 #        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
