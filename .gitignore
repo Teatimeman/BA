@@ -1,2 +1,3 @@
 # ignore virtualenv folder env
 /env
+/saved_models
