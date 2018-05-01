@@ -79,8 +79,10 @@ def get_mfcc(audioSignal):
     mfcc_signal = mfcc(signal,samplerate,nfilt=40,numcep=40)
     return mfcc_signal
 
-def get_label(audioSignal,number):
+def get_label(audioSignal):
     T = textgrid.TextGrid();
+    head,tail = os.path.split(audioSignal)
+    number = tail[0:3]
     T.read("TextGrids/"+number+"_wav.TextGrid")
     w_tier = T.getFirst("Vokale").intervals
     mfcc_raw = get_mfcc(audioSignal)
@@ -113,11 +115,10 @@ def get_data(folder):
     signals = []
     for root, directories, files in os.walk(folder):
         for filename in files:
-            signalNumber = filename[0:3]
-            signals.append((join(root,filename),signalNumber))
+            signals.append(join(root,filename))
     
-    signal_mfccs = [get_mfcc(s) for s,num in signals]
-    signal_labels = [get_label(s,num) for s,num in signals] ## den output vector für alle signale erzeugen
+    signal_mfccs = [get_mfcc(s) for s in signals]
+    signal_labels = [get_label(s) for s in signals] ## den output vector für alle signale erzeugen
     
     
     return signal_mfccs , signal_labels 
@@ -140,13 +141,10 @@ x = tf.placeholder(tf.float32, [None, None, n_mfcc], name = "x")
 # batch_Size, Sequence_length_labels
 y = tf.placeholder(tf.float32, [None, None,2], name = "y")
 
-rnn_size = 512
-
-#saver = tf.train.Saver()
-
 def recurrent_neural_network():
 #     x = tf.reshape(x, [-1, chunk_size])
     # x = tf.split(x, n_chunks)
+    rnn_size = 512
     layer = {'weights':tf.Variable(tf.random_normal([rnn_size,2])),
              'biases':tf.Variable(tf.random_normal([2]))}
     
@@ -158,16 +156,10 @@ def recurrent_neural_network():
     return output
 
 def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=500):
-    
-    
     x_data, y_data = prepare_data("Wave_sliced")
-    x_test ,y_test = prepare_data("Test_Data")
 #    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data)
 
     prediction = recurrent_neural_network()
-
-# sigmoid konstante C um 0 und 1 auszugleichen     
-# oder netz ist nicht mit der loss funktion verbunden
     
     cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y[-1], logits = prediction))
     optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost)
@@ -175,6 +167,7 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=500):
     saver = tf.train.Saver();
     
     with tf.Session() as sess:
+#        saver.restore(sess,"models/model.ckpt")
         sess.run(tf.global_variables_initializer())
                 
 #        train_dict = {x: x_data, y: y_data}
@@ -198,8 +191,15 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=500):
         
         save_path = saver.save(sess, "models/model.ckpt")        
         print("Model saved in path: %s" % save_path)        
-#        saver.restore(sess,"saved_models/model.ckpt")        
-        
+                
+def get_accuracy(model,test_data):
+    
+    prediction = recurrent_neural_network()
+    
+    saver = tf.train.Saver();
+    with tf.Session() as sess:
+        saver.restore(sess,model)        
+        x_test ,y_test = prepare_data(test_data)
         test_data = list(zip(x_test, y_test))
         
         hit = 0 # true positive
@@ -228,16 +228,7 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=500):
         total_amount = hit + correct_rejection + miss + false_alarm            
         accuracy = float((hit + correct_rejection))/total_amount
         print("Accuracy: ",accuracy)
-
-#        test_x = get_mfcc("Test_Data/142_slices/142_part_1") 
-#        test_y = get_label("Test_Data/142_slices/142_part_1", "142")
-#        test_x = test_x.reshape((1,test_x.shape[0],test_x.shape[1]))        
-#        y_prediction = sess.run(prediction, feed_dict={x: test_x})
-##        print(y_prediction) # roh_daten zum auswerten von der Klassefizierung        
-#        y_prediction = np.argmax(y_prediction, 1)
-#        y_labeled = np.argmax(test_y,1)
-##        print(y_prediction) 
-##        print(y_labeled)
+        
 #        correct = np.equal(y_prediction,y_labeled)
 ##        correct = tf.equal(y_prediction,y_labeled)
 #        print(correct)
@@ -246,10 +237,26 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=500):
         
 #        print('Accuracy:',accuracy.eval(train_dict))
 
+def get_prediction():
+    
+    sess = tf.Session()
+
+    prediction = recurrent_neural_network()
+
+    saver = tf.train.Saver()
+    saver.restore(sess, "saved_models/First_model/model.ckpt")
+    
+    input_data = get_mfcc("base_line_signal")
+    input_x = input_data.reshape((1,input_data.shape[0],input_data.shape[1]))    
+
+    output_y = sess.run(prediction, feed_dict={x:input_x})
+    output_y = np.argmax(output_y,1)
+    
+    print(output_y)        
+
 train_neural_network()
-
-
-
+get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
+#get_prediction()
 
 
 

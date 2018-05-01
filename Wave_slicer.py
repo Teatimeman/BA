@@ -67,4 +67,10 @@ def slicer(folder):
             
             i = i + 6
 
-slicer("Daten_vowel_BA/RecordingVCP/new_data/")   
+#slicer("new_data/")   
+
+
+signal = AudioSegment.from_wav("new_data/004.wav.wav")
+part = signal[8200:10900]
+part.export("base_line_signal",format = "wav")
+
