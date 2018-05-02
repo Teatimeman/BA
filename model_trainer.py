@@ -41,9 +41,8 @@ from tensorflow.python.ops import rnn, rnn_cell
 # Operating system commands
 
 
-frame_length = 0.025
-frame_step = 0.01
-
+frame_length = 0.0025
+frame_step = 0.001
 n_mfcc = 40
 
 # rnn_size = Weights = input_dim + output_dim
@@ -76,7 +75,7 @@ def getSegments(partWaveFile,w_tier):
 
 def get_mfcc(audioSignal):
     signal, samplerate  = librosa.load(audioSignal,sr = None)
-    mfcc_signal = mfcc(signal,samplerate,nfilt=40,numcep=40)
+    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40)
     return mfcc_signal
 
 def get_label(audioSignal):
@@ -88,8 +87,9 @@ def get_label(audioSignal):
     mfcc_raw = get_mfcc(audioSignal)
  
     # time_mark = 0.025/2 + [0.01,0.02,..., 0.01*mfcc_raw.shape[0]]
-    time_mark = 0.025/2 + 0.01*np.arange(0, mfcc_raw.shape[0])
+    time_mark = frame_length/2 + frame_step*np.arange(0, mfcc_raw.shape[0])
     time_mark = time_mark.astype('float32')
+
 
     ## Generieren eines neuen Outputs/Labeling
     xmin1,xmax1,xmin2,xmax2,xmin3,xmax3, new_duration = getSegments(audioSignal,w_tier)
@@ -237,7 +237,7 @@ def get_accuracy(model,test_data):
         
 #        print('Accuracy:',accuracy.eval(train_dict))
 
-def get_prediction():
+def get_prediction(wav_file):
     
     sess = tf.Session()
 
@@ -246,27 +246,55 @@ def get_prediction():
     saver = tf.train.Saver()
     saver.restore(sess, "saved_models/First_model/model.ckpt")
     
-    input_data = get_mfcc("base_line_signal")
+    input_data = get_mfcc(wav_file)
     input_x = input_data.reshape((1,input_data.shape[0],input_data.shape[1]))    
 
     output_y = sess.run(prediction, feed_dict={x:input_x})
     output_y = np.argmax(output_y,1)
+    print(output_y)   
+    return output_y
+
+
+def convert(y_output):
     
-    print(output_y)        
+    annotations = []
+    for i in range(len(y_output)):
+        if y_output[i] == 1:
+            j = i
+            while y_output[j] == 1:
+                j = j+1
+            start = i*frame_step + frame_length/2
+            end = (j - 1)*frame_step + frame_length/2
+            annotations.append((start,end))
+            i = j
+    return annotations
 
 train_neural_network()
-get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
-#get_prediction()
+#get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
 
+#label_y = get_label("Test_Data/142_slices/142_part_1")
+#label_y = np.argmax(label_y,1)
+#
+#test = get_prediction("Test_Data/142_slices/142_part_1")
+#time = convert(test)
+#time2 = convert(label_y)
+#print(time)
+#print(time2)
+#print(len(label_y))
 
+#print(label_y)
+#y_prediction = get_prediction("Test_Data/142_slices/142_part_1")
+#table = np.equal(label_y,y_prediction)
+#print(table)
 
-
-
-
-
-
-
-
+#T = textgrid.TextGrid();
+#head,tail = os.path.split("Test_Data/142_slices/142_part_1")
+#number = tail[0:3]
+#T.read("TextGrids/"+number+"_wav.TextGrid")
+#w_tier = T.getFirst("Vokale").intervals
+## Generieren eines neuen Outputs/Labeling
+#xmin1,xmax1,xmin2,xmax2,xmin3,xmax3, new_duration = getSegments("Test_Data/142_slices/142_part_1",w_tier)
+#print(xmin1,xmax1,xmin2,xmax2,xmin3,xmax3,new_duration)
 
 
 

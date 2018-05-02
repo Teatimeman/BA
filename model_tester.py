@@ -8,7 +8,6 @@ Created on Fri Apr 27 20:55:03 2018
 import numpy as np
 import tensorflow as tf
 import model_trainer as mt
-from model_trainer import get_mfcc,get_label
 
 sess = tf.Session()
 
@@ -21,7 +20,7 @@ graph = tf.get_default_graph()
 x = graph.get_tensor_by_name("x:0")
 y = graph.get_tensor_by_name("y:0")
 
-input_data = get_mfcc("base_line_signal")
+input_data = mt.get_mfcc("base_line_signal")
 input_x = input_data.reshape((1,input_data.shape[0],input_data.shape[1]))    
 
 #label_y = get_label("Test_Data/142_slices/142_part_1")
