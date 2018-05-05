@@ -188,7 +188,7 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=150):
             print('Epoch', str(epoch), 'completed out of',hm_epochs,
                   'loss:', str(epoch_loss),
                   'average loss', str(average_loss))        
-            save_path = saver.save(sess, "models/model_step_"+epoch+"_.ckpt")
+            save_path = saver.save(sess, "models/model_step_"+str(epoch)+"_.ckpt")
             if epoch == 100:
                 save_path = saver.save(sess, "models/100er_model/model_step_"+epoch+"_.ckpt")    
             print("Model saved in path: %s" % save_path)            
