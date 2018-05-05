@@ -155,7 +155,7 @@ def recurrent_neural_network():
 
     return output
 
-def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=500):
+def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=150):
     x_data, y_data = prepare_data("Wave_sliced")
 #    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data)
 
@@ -187,10 +187,11 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=500):
             average_loss = epoch_loss / len(epoch_data)
             print('Epoch', str(epoch), 'completed out of',hm_epochs,
                   'loss:', str(epoch_loss),
-                  'average loss', str(average_loss))
-        
-        save_path = saver.save(sess, "models/model.ckpt")        
-        print("Model saved in path: %s" % save_path)        
+                  'average loss', str(average_loss))        
+            save_path = saver.save(sess, "models/model_step_"+epoch+"_.ckpt")
+            if epoch == 100:
+                save_path = saver.save(sess, "saved_models/100er_models/model_step_"+epoch+"_.ckpt")    
+            print("Model saved in path: %s" % save_path)            
                 
 def get_accuracy(model,test_data):
     
