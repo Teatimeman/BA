@@ -190,7 +190,7 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=150):
                   'average loss', str(average_loss))        
             save_path = saver.save(sess, "models/model_step_"+str(epoch)+"_.ckpt")
             if epoch == 100:
-                save_path = saver.save(sess, "models/100er_model/model_step_"+epoch+"_.ckpt")    
+                save_path = saver.save(sess, "models/100er_model/model_step_"+str(epoch)+"_.ckpt")    
             print("Model saved in path: %s" % save_path)            
                 
 def get_accuracy(model,test_data):
@@ -229,7 +229,11 @@ def get_accuracy(model,test_data):
         total_amount = hit + correct_rejection + miss + false_alarm            
         accuracy = float((hit + correct_rejection))/total_amount
         print("Accuracy: ",accuracy)
-        
+        print("total amount: ", total_amount)
+        print("hits: ", hit)
+        print("correct_rejections: ", correct_rejection)
+        print("misses: ", miss)
+        print("false_alarm: ",false_alarm)
 #        correct = np.equal(y_prediction,y_labeled)
 ##        correct = tf.equal(y_prediction,y_labeled)
 #        print(correct)
@@ -238,6 +242,27 @@ def get_accuracy(model,test_data):
         
 #        print('Accuracy:',accuracy.eval(train_dict))
 
+def get_baseLine_accuracy(test_data):
+    x_test ,y_test = prepare_data(test_data)
+    correct_rejection = 0
+    miss = 0
+    for y_sample in y_test:
+        y_labeled = np.argmax(y_sample,1)        
+        baseLine = np.zeros(len(y_labeled))
+        correct = np.equal(baseLine, y_labeled)
+    
+        for i in range(len(correct)):
+            if correct[i]:
+                correct_rejection = correct_rejection + 1        
+            else:
+                miss = miss + 1
+    total_amount = miss + correct_rejection
+    Accuracy = float(correct_rejection) / total_amount
+    print("Baseline Accuracy: ", Accuracy)
+
+
+
+                
 def get_prediction(wav_file):
     
     sess = tf.Session()
@@ -256,6 +281,8 @@ def get_prediction(wav_file):
     return output_y
 
 
+    
+
 def convert(y_output):
     
     annotations = []
@@ -270,9 +297,9 @@ def convert(y_output):
             i = j
     return annotations
 
-train_neural_network()
-#get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
-
+#train_neural_network()
+get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
+get_baseLine_accuracy("Test_Data/")
 #label_y = get_label("Test_Data/142_slices/142_part_1")
 #label_y = np.argmax(label_y,1)
 #
