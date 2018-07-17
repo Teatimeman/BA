@@ -41,8 +41,8 @@ from tensorflow.python.ops import rnn, rnn_cell
 # Operating system commands
 
 
-frame_length = 0.0025
-frame_step = 0.001
+frame_length = 0.025
+frame_step = 0.01
 n_mfcc = 40
 
 # rnn_size = Weights = input_dim + output_dim
@@ -147,9 +147,7 @@ def recurrent_neural_network():
     rnn_size = 512
     layer = {'weights':tf.Variable(tf.random_normal([rnn_size,2])),
              'biases':tf.Variable(tf.random_normal([2]))}
-    
     lstm_cell = rnn_cell.LSTMCell(rnn_size,reuse=None)
- 
     outputs, states = rnn.dynamic_rnn(lstm_cell, x, dtype=tf.float32)
     output = tf.matmul(outputs[-1], layer['weights']) + layer['biases']
 
@@ -193,14 +191,15 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=150):
                 save_path = saver.save(sess, "models/100er_model/model_step_"+str(epoch)+"_.ckpt")    
             print("Model saved in path: %s" % save_path)            
                 
-def get_accuracy(model,test_data):
+def get_accuracy(model,test_folder):
     
+
     prediction = recurrent_neural_network()
     
     saver = tf.train.Saver();
     with tf.Session() as sess:
         saver.restore(sess,model)        
-        x_test ,y_test = prepare_data(test_data)
+        x_test ,y_test = prepare_data(test_folder)
         test_data = list(zip(x_test, y_test))
         
         hit = 0 # true positive
@@ -215,9 +214,10 @@ def get_accuracy(model,test_data):
             y_labeled = np.argmax(y_sample,1)
             
             correct = np.equal(y_prediction,y_labeled)
-            
+            thisCorrectAmount = 0
             for i in range(len(correct)):
                 if correct[i]:
+                    thisCorrectAmount = thisCorrectAmount + 1
                     if y_labeled[i] == 1:
                         hit = hit + 1
                     else: correct_rejection  = correct_rejection + 1
@@ -225,15 +225,19 @@ def get_accuracy(model,test_data):
                     if y_labeled[i] == 1:
                         miss = miss + 1
                     else: false_alarm = false_alarm + 1
-                    
+            thisTotalAmount = len(correct)
+            thisAccuracy = float(thisCorrectAmount)/thisTotalAmount
+#            print(thisAccuracy)
         total_amount = hit + correct_rejection + miss + false_alarm            
         accuracy = float((hit + correct_rejection))/total_amount
+        print("Name: ",test_folder)
         print("Accuracy: ",accuracy)
         print("total amount: ", total_amount)
         print("hits: ", hit)
         print("correct_rejections: ", correct_rejection)
         print("misses: ", miss)
         print("false_alarm: ",false_alarm)
+        tf.get_default_session().close()
 #        correct = np.equal(y_prediction,y_labeled)
 ##        correct = tf.equal(y_prediction,y_labeled)
 #        print(correct)
@@ -242,6 +246,11 @@ def get_accuracy(model,test_data):
         
 #        print('Accuracy:',accuracy.eval(train_dict))
 
+# Vergleich der test_Daten mit einem Baseline Signal in dem Fall ein y_output 
+# der nur 0 hat -> die zahl die daraus folgt gibt aufschluss darüber das: 
+# mehr als die hälfte der Zahlen 0 sind, wenn die Accuracy eines models größer 
+# als die Baseline Accuracy ist bedeutet es das das model in die richtige 
+# richtung geht 
 def get_baseLine_accuracy(test_data):
     x_test ,y_test = prepare_data(test_data)
     correct_rejection = 0
@@ -260,29 +269,26 @@ def get_baseLine_accuracy(test_data):
     Accuracy = float(correct_rejection) / total_amount
     print("Baseline Accuracy: ", Accuracy)
 
-
-
-                
-def get_prediction(wav_file):
+# Gibt ein 1-dimensionales array wieder mit 0 oder 1 
+def get_prediction(wav_file,model):
     
     sess = tf.Session()
 
     prediction = recurrent_neural_network()
 
     saver = tf.train.Saver()
-    saver.restore(sess, "saved_models/First_model/model.ckpt")
+    saver.restore(sess, model)
     
     input_data = get_mfcc(wav_file)
     input_x = input_data.reshape((1,input_data.shape[0],input_data.shape[1]))    
 
     output_y = sess.run(prediction, feed_dict={x:input_x})
     output_y = np.argmax(output_y,1)
+    
     print(output_y)   
     return output_y
 
-
-    
-
+# konvertiert einen y_output in zeit maße um
 def convert(y_output):
     
     annotations = []
@@ -297,13 +303,24 @@ def convert(y_output):
             i = j
     return annotations
 
+
+
+#for root, directories, files in os.walk("Test_Data_SpeakerDependent"):
+#        for directory in directories:
+#            get_accuracy("saved_models/First_model/model.ckpt",join(root,directory))
 #train_neural_network()
+    
 get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
-get_baseLine_accuracy("Test_Data/")
+
+get_accuracy("saved_models/First_model/model.ckpt","Test_Data_SpeakerDependent/")
+#get_baseLine_accuracy("Test_Data/")
+#get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data/")
+#get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data_SpeakerDependent/")
+
 #label_y = get_label("Test_Data/142_slices/142_part_1")
 #label_y = np.argmax(label_y,1)
-#
-#test = get_prediction("Test_Data/142_slices/142_part_1")
+##
+#test = get_prediction("Test_Data/142_slices/142_part_1","saved_models/100er_models/model_step_100_.ckpt")
 #time = convert(test)
 #time2 = convert(label_y)
 #print(time)
