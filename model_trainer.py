@@ -5,6 +5,7 @@ Created on Tue Dec 12 16:56:10 2017
 
 @author: teatimeman
 """
+#import sounddevice as sd
 import numpy as np
 import tensorflow as tf
 
@@ -74,7 +75,7 @@ def getSegments(partWaveFile,w_tier):
 
 
 def get_mfcc(audioSignal):
-    signal, samplerate  = librosa.load(audioSignal,sr = None)
+    signal, samplerate  = librosa.load(audioSignal,sr = 16000)
     mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40)
     return mfcc_signal
 
@@ -148,13 +149,14 @@ def recurrent_neural_network():
     layer = {'weights':tf.Variable(tf.random_normal([rnn_size,2])),
              'biases':tf.Variable(tf.random_normal([2]))}
     lstm_cell = rnn_cell.LSTMCell(rnn_size,reuse=None)
+#    rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob = 0.7)
     outputs, states = rnn.dynamic_rnn(lstm_cell, x, dtype=tf.float32)
     output = tf.matmul(outputs[-1], layer['weights']) + layer['biases']
-
+   
     return output
 
-def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=150):
-    x_data, y_data = prepare_data("Wave_sliced")
+def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm_epochs=200):
+    x_data, y_data = prepare_data(trainings_folder)
 #    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data)
 
     prediction = recurrent_neural_network()
@@ -186,9 +188,11 @@ def train_neural_network(learning_rate = 0.01, batch_size=1 ,hm_epochs=150):
             print('Epoch', str(epoch), 'completed out of',hm_epochs,
                   'loss:', str(epoch_loss),
                   'average loss', str(average_loss))        
-            save_path = saver.save(sess, "models/model_step_"+str(epoch)+"_.ckpt")
+            
+            save_path = saver.save(sess, "models/"+trainings_folder+"/model_step_"+str(epoch)+"_.ckpt")
+            
             if epoch == 100:
-                save_path = saver.save(sess, "models/100er_model/model_step_"+str(epoch)+"_.ckpt")    
+                save_path = saver.save(sess, "models/"+trainings_folder+"/100er_model/model_step_"+str(epoch)+"_.ckpt")    
             print("Model saved in path: %s" % save_path)            
                 
 def get_accuracy(model,test_folder):
@@ -212,7 +216,6 @@ def get_accuracy(model,test_folder):
             y_prediction = sess.run(prediction, feed_dict={x:x_sample.reshape((1,x_sample.shape[0],x_sample.shape[1]))})
             y_prediction = np.argmax(y_prediction,1)
             y_labeled = np.argmax(y_sample,1)
-            
             correct = np.equal(y_prediction,y_labeled)
             thisCorrectAmount = 0
             for i in range(len(correct)):
@@ -230,8 +233,20 @@ def get_accuracy(model,test_folder):
 #            print(thisAccuracy)
         total_amount = hit + correct_rejection + miss + false_alarm            
         accuracy = float((hit + correct_rejection))/total_amount
+        presence =  float(hit + miss) / total_amount
+        precision =  float(hit) / (hit + false_alarm)
+        recall = float(hit) / (hit + miss)
+        f_measure = 2 *(precision*recall) / (precision+recall)
         print("Name: ",test_folder)
+        print("Hits: " , hit)
+        print("False_alarms: ", false_alarm)
+        print("Correct_rejections: ", correct_rejection)
+        print("Misses: ", miss)
         print("Accuracy: ",accuracy)
+        print("Presence: ",presence)
+        print("Precision: ",precision)
+        print("Recall: ", recall)
+        print("F-measure:" , f_measure)
         print("total amount: ", total_amount)
         print("hits: ", hit)
         print("correct_rejections: ", correct_rejection)
@@ -290,9 +305,9 @@ def get_prediction(wav_file,model):
 
 # konvertiert einen y_output in zeit maße um
 def convert(y_output):
-    
     annotations = []
-    for i in range(len(y_output)):
+    i = 0
+    while i < len(y_output):
         if y_output[i] == 1:
             j = i
             while y_output[j] == 1:
@@ -300,32 +315,49 @@ def convert(y_output):
             start = i*frame_step + frame_length/2
             end = (j - 1)*frame_step + frame_length/2
             annotations.append((start,end))
-            i = j
+            i = j - 1
+        i = i +1
     return annotations
-
-
+#
+#fs = 16000
+#duration = 3
+#myrecording = sd.rec(duration * fs , samplerate = fs , channels=2 , dtype = 'float64')
+#print("recording...")
+#sd.wait()
+#sd.play(myrecording, fs)
+#sd.wait()
+#print("finish")
 
 #for root, directories, files in os.walk("Test_Data_SpeakerDependent"):
 #        for directory in directories:
 #            get_accuracy("saved_models/First_model/model.ckpt",join(root,directory))
-#train_neural_network()
-    
-get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
 
-get_accuracy("saved_models/First_model/model.ckpt","Test_Data_SpeakerDependent/")
-#get_baseLine_accuracy("Test_Data/")
+train_neural_network("Trainings_Data_Speaker_Dependent")
+
+train_neural_network("Trainings_Data_Speaker_Independent")
+#get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
+#get_accuracy("saved_models/First_model/model.ckpt","Test_Data_SpeakerDependent/")
 #get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data/")
 #get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data_SpeakerDependent/")
+#get_baseLine_accuracy("Test_Data/")
+
 
 #label_y = get_label("Test_Data/142_slices/142_part_1")
 #label_y = np.argmax(label_y,1)
-##
+#test = get_prediction("Test_Data/142_slices/142_part_1","saved_models/First_model/model.ckpt")
+#print(label_y)
 #test = get_prediction("Test_Data/142_slices/142_part_1","saved_models/100er_models/model_step_100_.ckpt")
 #time = convert(test)
 #time2 = convert(label_y)
 #print(time)
 #print(time2)
 #print(len(label_y))
+
+#test = get_prediction("Test_Data/beat.wav","saved_models/First_model/model.ckpt")
+#test = get_prediction("Test_Data/had.wav","saved_models/First_model/model.ckpt")
+#test = get_prediction(myrecording,"saved_models/First_model/model.ckpt")
+#time = convert(test)
+#print(time)
 
 #print(label_y)
 #y_prediction = get_prediction("Test_Data/142_slices/142_part_1")
@@ -342,11 +374,18 @@ get_accuracy("saved_models/First_model/model.ckpt","Test_Data_SpeakerDependent/"
 #print(xmin1,xmax1,xmin2,xmax2,xmin3,xmax3,new_duration)
 
 
+#
+#Notiz:
+#10% auslassen rest training und geschlecht balancieren
+#5% (3) davon frauen und 5% (1) männer 
+#62 Frauen und 18 Männer insgesamt
+#
+#speaker dependent train score / test score
+#speaker independent test scores 
+#-> dropout erhöhen wenn delta zu hoch
+#spectrogramm mit fbank grenzen mit ax vlines
 
-
-
-
-
-
+# Verteidigung: 20 minuten vortrag  + 10 min fragen 
+#fragen ob nach oder vor abgabe der thesis
 
 
