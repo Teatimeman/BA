@@ -167,34 +167,34 @@ def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm
         
         saver = tf.train.Saver();
         
-        with tf.Session() as sess:
-    #        saver.restore(sess,"models/model.ckpt")
-            sess.run(tf.global_variables_initializer())
-                    
-    #        train_dict = {x: x_data, y: y_data}
-    #        test_dict = {x: x_test, y: y_test}
-        
-            for epoch in range(hm_epochs):
-                epoch_loss = 0
+    with tf.Session() as sess:
+#        saver.restore(sess,"models/model.ckpt")
+        sess.run(tf.global_variables_initializer())
                 
-                epoch_data = list(zip(x_data, y_data))
-                np.random.shuffle(epoch_data)
-                
-                for x_sample,y_sample in epoch_data:                 
-                    epoch_x = x_sample.reshape((1,x_sample.shape[0],x_sample.shape[1]))                
-                    epoch_y = y_sample.reshape((1,y_sample.shape[0],y_sample.shape[1]))                                                
-                    _, c= sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
-                    epoch_loss += c                
-                average_loss = epoch_loss / len(epoch_data)
-                print('Epoch', str(epoch), 'completed out of',hm_epochs,
-                      'loss:', str(epoch_loss),
-                      'average loss', str(average_loss))        
-                
-                save_path = saver.save(sess, "models/"+trainings_folder+"/model_step_"+str(epoch)+"_.ckpt")
-                
-                if epoch == 100:
-                    save_path = saver.save(sess, "models/"+trainings_folder+"/100er_model/model_step_"+str(epoch)+"_.ckpt")    
-                print("Model saved in path: %s" % save_path)            
+#        train_dict = {x: x_data, y: y_data}
+#        test_dict = {x: x_test, y: y_test}
+    
+        for epoch in range(hm_epochs):
+            epoch_loss = 0
+            
+            epoch_data = list(zip(x_data, y_data))
+            np.random.shuffle(epoch_data)
+            
+            for x_sample,y_sample in epoch_data:                 
+                epoch_x = x_sample.reshape((1,x_sample.shape[0],x_sample.shape[1]))                
+                epoch_y = y_sample.reshape((1,y_sample.shape[0],y_sample.shape[1]))                                                
+                _, c= sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
+                epoch_loss += c                
+            average_loss = epoch_loss / len(epoch_data)
+            print('Epoch', str(epoch), 'completed out of',hm_epochs,
+                  'loss:', str(epoch_loss),
+                  'average loss', str(average_loss))        
+            
+            save_path = saver.save(sess, "models/"+trainings_folder+"/model_step_"+str(epoch)+"_.ckpt")
+            
+            if epoch == 100:
+                save_path = saver.save(sess, "models/"+trainings_folder+"/100er_model/model_step_"+str(epoch)+"_.ckpt")    
+            print("Model saved in path: %s" % save_path)            
                     
 def get_accuracy(model,test_folder):
     
