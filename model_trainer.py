@@ -138,10 +138,10 @@ def prepare_data(folder):
 
     
 # batch_Size, Sequence_length, n_mfcc
-x = tf.placeholder(tf.float32, [None, None, n_mfcc], name = "x")
+x = tf.placeholder(tf.float32, [None, None, n_mfcc])
 # batch_Size, Sequence_length_labels
-y = tf.placeholder(tf.float32, [None, None,2], name = "y")
-
+y = tf.placeholder(tf.float32, [None, None,2])
+    
 def recurrent_neural_network():
 #     x = tf.reshape(x, [-1, chunk_size])
     # x = tf.split(x, n_chunks)
@@ -149,14 +149,15 @@ def recurrent_neural_network():
     layer = {'weights':tf.Variable(tf.random_normal([rnn_size,2])),
              'biases':tf.Variable(tf.random_normal([2]))}
     lstm_cell = rnn_cell.LSTMCell(rnn_size,reuse=None)
-#    rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob = 0.7)
+    rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob = 0.7)
     outputs, states = rnn.dynamic_rnn(lstm_cell, x, dtype=tf.float32)
     output = tf.matmul(outputs[-1], layer['weights']) + layer['biases']
    
     return output
 
 def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm_epochs=200):
-    with tf.device("/gpu:1"):
+    
+    with tf.device("/GPU:0"):
         x_data, y_data = prepare_data(trainings_folder)
     #    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data)
     
@@ -173,7 +174,6 @@ def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm
                 
 #        train_dict = {x: x_data, y: y_data}
 #        test_dict = {x: x_test, y: y_test}
-    
         for epoch in range(hm_epochs):
             epoch_loss = 0
             
@@ -229,8 +229,8 @@ def get_accuracy(model,test_folder):
                     if y_labeled[i] == 1:
                         miss = miss + 1
                     else: false_alarm = false_alarm + 1
-            thisTotalAmount = len(correct)
-            thisAccuracy = float(thisCorrectAmount)/thisTotalAmount
+#            thisTotalAmount = len(correct)
+#            thisAccuracy = float(thisCorrectAmount)/thisTotalAmount
 #            print(thisAccuracy)
         total_amount = hit + correct_rejection + miss + false_alarm            
         accuracy = float((hit + correct_rejection))/total_amount
@@ -335,7 +335,8 @@ def convert(y_output):
 
 train_neural_network("Trainings_Data_Speaker_Dependent")
 
-train_neural_network("Trainings_Data_Speaker_Independent")
+#train_neural_network("Trainings_Data_Speaker_Independent")
+
 #get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
 #get_accuracy("saved_models/First_model/model.ckpt","Test_Data_SpeakerDependent/")
 #get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data/")
