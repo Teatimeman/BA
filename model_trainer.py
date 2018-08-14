@@ -156,7 +156,7 @@ def recurrent_neural_network():
     return output
 
 def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm_epochs=101):
-    
+   
     with tf.device("/GPU:0"):
         x_data, y_data = prepare_data(trainings_folder)
     #    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data)
@@ -166,12 +166,12 @@ def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm
         cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y[-1], logits = prediction))
         optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost)
         
-        saver = tf.train.Saver();
+       
         
     with tf.Session() as sess:
 #        saver.restore(sess,"models/model.ckpt")
         sess.run(tf.global_variables_initializer())
-                
+        saver = tf.train.Saver()
 #        train_dict = {x: x_data, y: y_data}
 #        test_dict = {x: x_test, y: y_test}
         for epoch in range(hm_epochs):
@@ -194,7 +194,7 @@ def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm
             
             if epoch == 100:
                 save_path = saver.save(sess, "models/"+trainings_folder+"/100er_model/model_step_"+str(epoch)+"_.ckpt")    
-            print("Model saved in path: %s" % save_path)            
+		#print("Model saved in path: %s" % save_path)            
                     
 def get_accuracy(model,test_folder):
     
@@ -333,14 +333,16 @@ def convert(y_output):
 #        for directory in directories:
 #            get_accuracy("saved_models/First_model/model.ckpt",join(root,directory))
 
-train_neural_network("Trainings_Data_Speaker_Dependent")
+#train_neural_network("Trainings_Data_Speaker_Dependent")
+#get_accuracy("models/Trainings_Data_Speaker_Dependent/100er_model/model_step_100_.ckpt","Test_Data_Speaker_Dependent")
 
 #train_neural_network("Trainings_Data_Speaker_Independent")
+get_accuracy("models/Trainings_Data_Speaker_Independent/100er_model/model_step_100_.ckpt","Test_Data_Speaker_Independent")
 
 #get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
-#get_accuracy("saved_models/First_model/model.ckpt","Test_Data_SpeakerDependent/")
+#get_accuracy("saved_models/First_model/model.ckpt","Test_Data_Speaker_Dependent/")
 #get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data/")
-#get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data_SpeakerDependent/")
+#get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data_Speaker_Dependent/")
 #get_baseLine_accuracy("Test_Data/")
 
 
