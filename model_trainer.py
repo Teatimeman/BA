@@ -156,7 +156,6 @@ def recurrent_neural_network():
     return output
 
 def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm_epochs=101):
-    
     with tf.device("/GPU:0"):
         x_data, y_data = prepare_data(trainings_folder)
     #    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data)
@@ -165,9 +164,8 @@ def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm
         
         cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y[-1], logits = prediction))
         optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost)
-        
-        saver = tf.train.Saver();
-        
+        saver = tf.train.Saver()        
+
     with tf.Session() as sess:
 #        saver.restore(sess,"models/model.ckpt")
         sess.run(tf.global_variables_initializer())
@@ -194,7 +192,7 @@ def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm
             
             if epoch == 100:
                 save_path = saver.save(sess, "models/"+trainings_folder+"/100er_model/model_step_"+str(epoch)+"_.ckpt")    
-            print("Model saved in path: %s" % save_path)            
+                print("Model saved in path: %s" % save_path)            
                     
 def get_accuracy(model,test_folder):
     
