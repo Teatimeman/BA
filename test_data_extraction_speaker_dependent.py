@@ -11,28 +11,39 @@ import shutil
 from os import listdir
 from os.path import isfile , isdir, join
 
-folder = "Trainings_Data_Speaker_Dependent"
+folder = "Wave_sliced"
 
-destination = "Test_Data_Speaker_Dependent"
+test_destination = "model_sets/test_sets/dependent"
+training_destination = "model_sets/training_sets/dependent"
 
-substring055 = "_part_55"
-substring061 = "_part_61"
-substring067 = "_part_67"
+dependent_1 = ("_1","_7","_13") 
+dependent_2 = ("_19","_25","_31")
+dependent_3 = ("_37","_43","_49")
+dependent_4 = ("_55","_61","_67")
+dependent_5 = ("_73","_79","_85")
+dependent_6 = ("_91","_97","_103")
+dependent_7 = ("_109","_115","_121")
+dependent_8 = ("_127","_133","_139")
+dependent_9 = ("_145","_151","_157")
 
-paths = []
+data = [dependent_1, dependent_2, dependent_3, dependent_4, dependent_5 , dependent_6, 
+        dependent_7, dependent_8, dependent_9]
 
-for root, directories, files in os.walk(folder):
-    for filename in files:
-        if substring055 in filename:
-#            print(filename)
-            paths.append(join(root,filename))
-        if substring061 in filename:
-            paths.append(join(root,filename))
-        if substring067 in filename:
-            paths.append(join(root,filename))
+i = 0
+
+for d in data:
+    i = i + 1
+    target_folder = "Dependent_" + str(i)
+    target_folder.endswith
+    for root, directories, files in os.walk(folder):
+        for filename in files:
+            file_path= join(root,filename)
+            if filename.endswith(d):
+                target_destination = test_destination
+            else:
+                target_destination = training_destination     
+            shutil.copyfile(file_path,join(target_destination,target_folder,filename))    
             
-for path in paths:
-    shutil.move(path,join(destination,os.path.basename(path)))
 
 #signal_mfccs = [get_mfcc(s) for s in signals]
 #signal_labels = [get_label(s) for s in signals] ## den output vector für alle signale erzeugen

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "hallo word"
+
+
+ls 'male/'*'.wav'
+
+
+for f in 'male/'*'.wav'
+	do sox $f 'new_data/'$f rate 16000
+	done
+

@@ -8,12 +8,15 @@ Created on Tue Dec 12 16:56:10 2017
 #import sounddevice as sd
 import numpy as np
 import tensorflow as tf
-
 import librosa
-#import librosa.display
+import librosa.display
 import re
 
 from python_speech_features import mfcc
+from python_speech_features import fbank
+
+
+
 
 import sklearn
 from sklearn.model_selection import train_test_split
@@ -45,10 +48,11 @@ from tensorflow.python.ops import rnn, rnn_cell
 frame_length = 0.025
 frame_step = 0.01
 n_mfcc = 40
-
-# rnn_size = Weights = input_dim + output_dim
-
-
+sr = 16000
+window_length = frame_length * sr
+window_length = int(round(window_length))
+window_step = frame_step *sr
+window_step = int(round(window_step))
 
 ## TODO: schneide in kleinere Trainingsdaten
 
@@ -73,9 +77,13 @@ def getSegments(partWaveFile,w_tier):
     xmax3 = w_tier[number+4].bounds()[1] - start
     return xmin1,xmax1,xmin2,xmax2,xmin3,xmax3,newDuration
 
-
+def get_fbank(audioSignal):
+    signal, samplerate = librosa.load(audioSignal,sr = sr)
+    fbank_features = fbank(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40)
+    return fbank_features[0]
+    
 def get_mfcc(audioSignal):
-    signal, samplerate  = librosa.load(audioSignal,sr = 16000)
+    signal, samplerate  = librosa.load(audioSignal,sr = sr)
     mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40)
     return mfcc_signal
 
@@ -132,11 +140,6 @@ def prepare_data(folder):
     y_train = np.asarray([pair[1] for pair in train_data])
     return x_train,y_train    
     
-#    x_input = [s.reshape((1,s.shape[0],s.shape[1])) for s in x_train]
-#    y_input = [s.reshape((1,s.shape[0],s.shape[1])) for s in y_train]
-#    return x_input, y_input
-
-    
 # batch_Size, Sequence_length, n_mfcc
 x = tf.placeholder(tf.float32, [None, None, n_mfcc])
 # batch_Size, Sequence_length_labels
@@ -156,10 +159,7 @@ def recurrent_neural_network():
     return output
 
 def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm_epochs=101):
-<<<<<<< HEAD
-=======
-   
->>>>>>> 06d7cb19fbae1350d0039c1d1114e7b298579a01
+
     with tf.device("/GPU:0"):
         x_data, y_data = prepare_data(trainings_folder)
     #    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data)
@@ -168,14 +168,7 @@ def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm
         
         cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels = y[-1], logits = prediction))
         optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost)
-<<<<<<< HEAD
-        saver = tf.train.Saver()        
-
-=======
         
-       
-        
->>>>>>> 06d7cb19fbae1350d0039c1d1114e7b298579a01
     with tf.Session() as sess:
 #        saver.restore(sess,"models/model.ckpt")
         sess.run(tf.global_variables_initializer())
@@ -200,13 +193,14 @@ def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm
             
 #            save_path = saver.save(sess, "models/"+trainings_folder+"/model_step_"+str(epoch)+"_.ckpt")
             
-            if epoch == 100:
-                save_path = saver.save(sess, "models/"+trainings_folder+"/100er_model/model_step_"+str(epoch)+"_.ckpt")    
-<<<<<<< HEAD
-                print("Model saved in path: %s" % save_path)            
-=======
-		#print("Model saved in path: %s" % save_path)            
->>>>>>> 06d7cb19fbae1350d0039c1d1114e7b298579a01
+#            if epoch == 100:
+#                save_path = saver.save(sess, "models/"+trainings_folder+"/100er_model/model_step_"+str(epoch)+"_.ckpt")
+#                print("Model saved in path: %s" % save_path)
+        model_kind = os.path.basename(os.path.dirname(trainings_folder))
+        model_number = os.path.basename(trainings_folder)
+        model_name = model_number.lower()
+        save_path = saver.save(sess,"models/"+model_kind + "/" + model_number+ "/" + model_name + ".ckpt")
+        print("Model saved in path: %s" % save_path)
                     
 def get_accuracy(model,test_folder):
     
@@ -331,7 +325,122 @@ def convert(y_output):
             i = j - 1
         i = i +1
     return annotations
-#
+
+def logscale_spec(spec, sr=16000, factor=20.):
+    timebins, freqbins = np.shape(spec)
+    
+    scale = np.linspace(0, 1, freqbins) ** factor
+    scale *= (freqbins-1)/max(scale)
+    scale = np.unique(np.round(scale))
+    scale = [int(i) for i in scale]
+    
+    # create spectrogram with new freq bins
+    newspec = np.complex128(np.zeros([timebins, len(scale)]))
+    for i in range(0, len(scale)):
+        if i == len(scale)-1:
+            newspec[:,i] = np.sum(spec[:,scale[i]:], axis=1)
+        else:        
+            newspec[:,i] = np.sum(spec[:,scale[i]:scale[i+1]], axis=1)
+    
+    # list center freq of bins
+    allfreqs = np.abs(np.fft.fftfreq(freqbins*2, 1./sr)[:freqbins+1])
+    freqs = []
+    for i in range(0, len(scale)):
+        if i == len(scale)-1:
+            freqs += [np.mean(allfreqs[scale[i]:])]
+        else:
+            freqs += [np.mean(allfreqs[scale[i]:scale[i+1]])]
+    
+    return newspec, freqs
+
+def plot(signal,binsize= 2**10,plotpath = None,colormap = "jet"):
+    pre_emphasis = 0.97
+    emphasized_signal = np.append(signal[0], signal[1:] - pre_emphasis * signal[:-1])
+    signal_length = len(emphasized_signal)
+    num_frames = int(np.ceil(float(np.abs(signal_length - window_length)) / window_step))
+    
+    pad_signal_length = num_frames * window_step + window_length
+    z = np.zeros(int(pad_signal_length - signal_length))
+    pad_signal = np.append(emphasized_signal, z) # Pad Signal to make sure that all frames have equal number of samples without truncating any samples from the original signal
+
+    indices = np.tile(np.arange(0, window_length), (num_frames, 1)) + np.tile(np.arange(0, num_frames * window_step, window_step), (window_length, 1)).T
+    frames = pad_signal[indices.astype(np.int32, copy=False)]
+    
+    frames *= np.hamming(window_length)
+    
+    NFFT = 512    
+    nfilt = 40
+    mag_frames = np.absolute(np.fft.rfft(frames, NFFT))  # Magnitude of the FFT
+    pow_frames = ((1.0 / NFFT) * ((mag_frames) ** 2))  # Power Spectrum
+    
+    low_freq_mel = 0
+    high_freq_mel = (2595 * np.log10(1 + (sr / 2) / 700))  # Convert Hz to Mel
+    mel_points = np.linspace(low_freq_mel, high_freq_mel, nfilt + 2)  # Equally spaced in Mel scale
+    hz_points = (700 * (10**(mel_points / 2595) - 1))  # Convert Mel to Hz
+    bin = np.floor((NFFT + 1) * hz_points / sr)
+    
+    fbank = np.zeros((nfilt, int(np.floor(NFFT / 2 + 1))))
+    for m in range(1, nfilt + 1):
+        f_m_minus = int(bin[m - 1])   # left
+        f_m = int(bin[m])             # center
+        f_m_plus = int(bin[m + 1])    # right
+    
+        for k in range(f_m_minus, f_m):
+            fbank[m - 1, k] = (k - bin[m - 1]) / (bin[m] - bin[m - 1])
+        for k in range(f_m, f_m_plus):
+            fbank[m - 1, k] = (bin[m + 1] - k) / (bin[m + 1] - bin[m])
+    filter_banks = np.dot(pow_frames, fbank.T)
+    filter_banks = np.where(filter_banks == 0, np.finfo(float).eps, filter_banks)  # Numerical Stability
+    
+    filter_banks = 20 * np.log10(filter_banks)  # dB
+    
+    filter_banks -= (np.mean(filter_banks, axis=0) + 1e-8)
+
+    ims = filter_banks
+    
+    sshow, freq = logscale_spec(ims, factor=1.0, sr=sr)
+
+    
+    timebins, freqbins = np.shape(ims)
+        
+    plt.figure(figsize=(15, 7.5))
+    plt.imshow(np.transpose(ims), origin="lower", aspect="auto", cmap=colormap, interpolation="none")
+    plt.colorbar(format = "%+2.0f dB")
+
+    plt.xlabel("time (s)")
+    plt.ylabel("frequency (hz)")
+    plt.xlim([0, timebins-1])
+    plt.ylim([0, freqbins])
+
+    xlocs = np.float32(np.linspace(0, timebins-1, 5))
+    plt.xticks(xlocs, ["%.02f" % l for l in ((xlocs*len(signal)/timebins)+(0.5*binsize))/sr])
+    ylocs = np.int16(np.round(np.linspace(0, freqbins-1, 10)))
+    plt.yticks(ylocs, ["%.02f" % freq[i] for i in ylocs])
+    
+    if plotpath:
+        plt.savefig(plotpath, bbox_inches="tight")
+    else:
+        plt.show()
+    plt.clf()
+    
+    
+def textGrid():    
+    test = get_prediction("Test_Data/beat.wav","models/Trainings_Data_Speaker_Independent/100er_model/model_step_100_.ckpt")
+    time = convert(test)
+    print(len(test))
+    print(time)
+    print(len(time))
+    print(time[1][1])
+    T = textgrid.TextGrid(minTime = 0, maxTime = 10)
+    Vokale = textgrid.IntervalTier("Vokale", minTime = 0, maxTime = 10)
+    Interval1 = textgrid.Interval(minTime = time[0][0],maxTime = time[0][1], mark = "Wort1")
+    #Vokale.add()
+    Vokale.addInterval(Interval1)
+    T.append(Vokale)
+    T.write("Moses")
+
+train_neural_network("model_sets/training_sets/dependent/Dependent_1")
+    
 #fs = 16000
 #duration = 3
 #myrecording = sd.rec(duration * fs , samplerate = fs , channels=2 , dtype = 'float64')
@@ -345,18 +454,16 @@ def convert(y_output):
 #        for directory in directories:
 #            get_accuracy("saved_models/First_model/model.ckpt",join(root,directory))
 
-#train_neural_network("Trainings_Data_Speaker_Dependent")
 #get_accuracy("models/Trainings_Data_Speaker_Dependent/100er_model/model_step_100_.ckpt","Test_Data_Speaker_Dependent")
 
 #train_neural_network("Trainings_Data_Speaker_Independent")
-get_accuracy("models/Trainings_Data_Speaker_Independent/100er_model/model_step_100_.ckpt","Test_Data_Speaker_Independent")
+#get_accuracy("models/Trainings_Data_Speaker_Independent/100er_model/model_step_100_.ckpt","Test_Data_Speaker_Independent")
 
 #get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
 #get_accuracy("saved_models/First_model/model.ckpt","Test_Data_Speaker_Dependent/")
 #get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data/")
 #get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data_Speaker_Dependent/")
 #get_baseLine_accuracy("Test_Data/")
-
 
 #label_y = get_label("Test_Data/142_slices/142_part_1")
 #label_y = np.argmax(label_y,1)
@@ -389,13 +496,12 @@ get_accuracy("models/Trainings_Data_Speaker_Independent/100er_model/model_step_1
 #xmin1,xmax1,xmin2,xmax2,xmin3,xmax3, new_duration = getSegments("Test_Data/142_slices/142_part_1",w_tier)
 #print(xmin1,xmax1,xmin2,xmax2,xmin3,xmax3,new_duration)
 
-
-#
 #Notiz:
 #10% auslassen rest training und geschlecht balancieren
-#5% (3) davon frauen und 5% (1) männer 
-#62 Frauen und 18 Männer insgesamt
-#
+#10% (6) davon frauen und 10% (2) männer 
+#62 Frauen und 18 Männer insgesamt 
+# 1 textgrid ohne inhalt darum eine Trainingsdatei fällt weg (NR 116 männlich)
+
 #speaker dependent train score / test score
 #speaker independent test scores 
 #-> dropout erhöhen wenn delta zu hoch
