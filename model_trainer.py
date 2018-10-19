@@ -9,14 +9,16 @@ Created on Tue Dec 12 16:56:10 2017
 import numpy as np
 import tensorflow as tf
 import librosa
-import librosa.display
+#import librosa.displays
 import re
+
+
 
 from python_speech_features import mfcc
 from python_speech_features import fbank
 
 
-
+import sys
 
 import sklearn
 from sklearn.model_selection import train_test_split
@@ -283,7 +285,7 @@ def get_baseLine_accuracy(test_data):
         correct = np.equal(baseLine, y_labeled)
     
         for i in range(len(correct)):
-            if correct[i]:
+            if correct[i]:  
                 correct_rejection = correct_rejection + 1        
             else:
                 miss = miss + 1
@@ -439,8 +441,11 @@ def textGrid():
     T.append(Vokale)
     T.write("Moses")
 
-train_neural_network("model_sets/training_sets/dependent/Dependent_1")
-    
+
+#print("Argument List:", str(sys.argv))
+#print(sys.argv[1])
+train_neural_network("model_sets/training_sets/dependent/" + str(sys.argv[1]))
+        
 #fs = 16000
 #duration = 3
 #myrecording = sd.rec(duration * fs , samplerate = fs , channels=2 , dtype = 'float64')
