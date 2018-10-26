@@ -8,7 +8,7 @@ Created on Fri Oct 19 14:13:02 2018
 
 import os
 
-for i in range(1,5):
-    os.system("model_trainer.py Dependent_"+str(i))
+for i in range(1,4):
+    os.system("python3 model_trainer.py Dependent_"+str(i))
 #    os.wait()
     

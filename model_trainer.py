@@ -86,7 +86,7 @@ def get_fbank(audioSignal):
     
 def get_mfcc(audioSignal):
     signal, samplerate  = librosa.load(audioSignal,sr = sr)
-    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40)
+    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40,winfunc = np.hamming)
     return mfcc_signal
 
 def get_label(audioSignal):
