@@ -86,7 +86,7 @@ def get_fbank(audioSignal):
     
 def get_mfcc(audioSignal):
     signal, samplerate  = librosa.load(audioSignal,sr = sr)
-    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40)
+    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40,winfunc=np.hamming)
     return mfcc_signal
 
 def get_label(audioSignal):
@@ -441,11 +441,12 @@ def textGrid():
     T.append(Vokale)
     T.write("Moses")
 
-
 #print("Argument List:", str(sys.argv))
 #print(sys.argv[1])
-train_neural_network("model_sets/training_sets/dependent/" + str(sys.argv[1]))
+
+#train_neural_network("model_sets/training_sets/dependent/" + str(sys.argv[1]))
         
+
 #fs = 16000
 #duration = 3
 #myrecording = sd.rec(duration * fs , samplerate = fs , channels=2 , dtype = 'float64')

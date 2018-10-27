@@ -16,6 +16,9 @@ folder = "Wave_sliced"
 test_destination = "model_sets/test_sets/dependent"
 training_destination = "model_sets/training_sets/dependent"
 
+# Von jedem sprecher immer 3 Files, durchschnitt an Files eines Sprechers = 30
+# 3 * 79 = 237 geschnitte Files zum Testen von insgesamt 2303 
+
 dependent_1 = ("_1","_7","_13") 
 dependent_2 = ("_19","_25","_31")
 dependent_3 = ("_37","_43","_49")
