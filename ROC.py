@@ -24,7 +24,7 @@ model_name = model_type + "_"
 
 
 
-def train_models(start,end):
+def train_models():
     start = sys.argv[2]
     end = sys.argv[3]
     for i in range(start,end):
@@ -137,5 +137,5 @@ def plot_roc_curve():
 
 train_models()
 #create_measurements()
-plot_roc_curve()
+#plot_roc_curve()
 
