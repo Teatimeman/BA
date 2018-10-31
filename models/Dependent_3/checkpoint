@@ -1,2 +1,0 @@
-model_checkpoint_path: "dependent_3.ckpt"
-all_model_checkpoint_paths: "dependent_3.ckpt"

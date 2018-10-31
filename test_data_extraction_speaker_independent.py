@@ -57,13 +57,15 @@ def sets(gender_list,gender):
             if not os.path.isdir(test_folder):
                 shutil.copytree(folder_path,test_folder)
             
-            for i in range(10):
+            for i in range(9):
                 if not i == folder_number:
                     trainings_folder = join(training_list[i],folder_name)
                     if not os.path.isdir(trainings_folder):
                         shutil.copytree(folder_path,trainings_folder)
             
-            count = count + 1            
+            count = count + 1   
+        
+        shutil.copytree(folder+"/"+"004_slices",test_destination+"/Independent_8/004_slices")
         
 def get_data(test_set_of):
     start_female = test_set_of * 6
@@ -75,4 +77,6 @@ def get_data(test_set_of):
     
 sets(male_files,2)
 sets(female_files,6)
+#get_data(8)
 
+#since the speaker gender distribution is not even results in a big varianz between models11

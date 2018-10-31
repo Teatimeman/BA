@@ -11,12 +11,16 @@ import tensorflow as tf
 import librosa
 #import librosa.displays
 import re
+import json
 
-
+import pickle
 
 from python_speech_features import mfcc
 from python_speech_features import fbank
 
+
+from scipy import interp
+from sklearn.metrics import roc_curve, auc
 
 import sys
 
@@ -86,11 +90,7 @@ def get_fbank(audioSignal):
     
 def get_mfcc(audioSignal):
     signal, samplerate  = librosa.load(audioSignal,sr = sr)
-<<<<<<< HEAD
-    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40,winfunc=np.hamming)
-=======
-    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40,winfunc = np.hamming)
->>>>>>> 12e0e9c21e88109bd9f5d8c5ad503c9065ffbe87
+    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40) #,winfunc= np.hamming
     return mfcc_signal
 
 def get_label(audioSignal):
@@ -118,11 +118,12 @@ def get_label(audioSignal):
            words_raw.append([0.0,1.0])
         else: words_raw.append([1.0,0.0]) 
  
-    #words_raw = [None,None,None,..,1.WORT,1.WORT,1.WORT,...]
+    #words_raw = [[1.0,0.0],[1.0,0.0],[1.0,0.0],[1.0,0.0], ., ,[0.0,1.0],[0.0,1.0],[0.0,1.0],...      ] 
+#    print(words_raw)
     words_label = np.asarray(words_raw, dtype = float)
+#    print(words_label)
     return words_label
 
-    
 
 def get_data(folder):
     
@@ -155,9 +156,11 @@ def recurrent_neural_network():
 #     x = tf.reshape(x, [-1, chunk_size])
     # x = tf.split(x, n_chunks)
     rnn_size = 512
+
     layer = {'weights':tf.Variable(tf.random_normal([rnn_size,2])),
              'biases':tf.Variable(tf.random_normal([2]))}
-    lstm_cell = rnn_cell.LSTMCell(rnn_size,reuse=None)
+    lstm_cell = rnn_cell.LSTMCell(rnn_size,reuse = False)
+#    lstm_cell = rnn_cell.LSTMCell(rnn_size,reuse=True)
     rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob = 0.7)
     outputs, states = rnn.dynamic_rnn(lstm_cell, x, dtype=tf.float32)
     output = tf.matmul(outputs[-1], layer['weights']) + layer['biases']
@@ -224,48 +227,136 @@ def get_accuracy(model,test_folder):
         false_alarm = 0 # false positive
         correct_rejection = 0  # true negative
         
+        y_probabilities = []
+        y_predictions = []
+        
+        y_labels = []
+        y_samples = []
+        
+        tpr = []
+        fpr = []
+        roc_values = []
+
+        sample_number= 0
+        
+        wrong_samples = 0
+        correct_samples = 0
+        
+        
         for x_sample,y_sample in test_data:
             
             y_prediction = sess.run(prediction, feed_dict={x:x_sample.reshape((1,x_sample.shape[0],x_sample.shape[1]))})
+            y_probabilities.append(y_prediction)
+            
             y_prediction = np.argmax(y_prediction,1)
+            y_predictions.append(y_prediction)
+            
             y_labeled = np.argmax(y_sample,1)
+            y_labels.append(y_labeled)
+            
+            y_samples.append(y_sample)
+            
             correct = np.equal(y_prediction,y_labeled)
+            
             thisCorrectAmount = 0
+            this_hit = 0
+            this_miss = 0
+            this_false_alarm = 0
+            this_correct_rejection = 0
+            
             for i in range(len(correct)):
+                
                 if correct[i]:
                     thisCorrectAmount = thisCorrectAmount + 1
                     if y_labeled[i] == 1:
-                        hit = hit + 1
-                    else: correct_rejection  = correct_rejection + 1
+                        hit = hit +1
+                        this_hit = this_hit + 1
+                    else: 
+                        this_correct_rejection  = this_correct_rejection + 1
+                        correct_rejection = correct_rejection + 1 
                 else:
                     if y_labeled[i] == 1:
-                        miss = miss + 1
-                    else: false_alarm = false_alarm + 1
+                        this_miss = this_miss + 1
+                        miss = miss +1
+                    else: 
+                        this_false_alarm  = this_false_alarm + 1
+                        false_alarm = false_alarm + 1
 #            thisTotalAmount = len(correct)
 #            thisAccuracy = float(thisCorrectAmount)/thisTotalAmount
 #            print(thisAccuracy)
+            
+            if  not (this_hit + this_miss) == 0:           
+                this_recall = float(this_hit) / (this_hit + this_miss)
+            else:
+                wrong_samples = wrong_samples + 1
+                this_recall = 1.0
+                
+            if not (this_false_alarm +this_miss) == 0:
+                this_fallout = float(this_false_alarm) / (this_false_alarm + this_miss)
+            else:
+                this_fallout = 0.0
+                correct_samples = correct_samples + 1
+              
+                
+                
+      
+            tpr.append(this_recall) 
+            fpr.append(this_fallout)
+
+            roc_values.append((sample_number,this_recall,this_fallout))
+            sample_number = sample_number + 1
+        
+        
         total_amount = hit + correct_rejection + miss + false_alarm            
-        accuracy = float((hit + correct_rejection))/total_amount
-        presence =  float(hit + miss) / total_amount
+        
+        recall = float(hit) / (hit + miss)                          #true positive rate or sensitivity
+        miss_rate = float(miss) / (hit + miss)    
+    
+        specificity = float(correct_rejection) / (correct_rejection + false_alarm)
+        fallout = float(false_alarm) / (correct_rejection + false_alarm)
+        
         precision =  float(hit) / (hit + false_alarm)
-        recall = float(hit) / (hit + miss)
+        npv = float(correct_rejection) / (miss + correct_rejection)
+        
+        accuracy = float((hit + correct_rejection))/total_amount
+        fcr = float((false_alarm + miss))/total_amount
+        
+        presence =  float(hit + miss) / total_amount
         f_measure = 2 *(precision*recall) / (precision+recall)
-        print("Name: ",test_folder)
-        print("Hits: " , hit)
-        print("False_alarms: ", false_alarm)
-        print("Correct_rejections: ", correct_rejection)
-        print("Misses: ", miss)
+        
+        model_name = os.path.basename(os.path.normpath(model))
+        
+        print("Name: ",model_name)
+
+        print("Hits (tp): " , hit)
+        print("False_alarms (fp): ", false_alarm)
+        print("Correct_rejections (tn): ", correct_rejection)
+        print("Misses (fn): ", miss)
+        
+        print("Recall (tpr/sensitivity): ", recall)
+        print("Miss rate (fnr): " , miss_rate)
+        
+        print("specificity (tnr/correct rejection rate): ",specificity)
+        print("Fallout (fpr): ", fallout)
+        
+        print("Precision: ",precision)        
+        print("Negative predictive value (npv): ", npv)
+        
+        
         print("Accuracy: ",accuracy)
-        print("Presence: ",presence)
-        print("Precision: ",precision)
-        print("Recall: ", recall)
-        print("F-measure:" , f_measure)
-        print("total amount: ", total_amount)
-        print("hits: ", hit)
-        print("correct_rejections: ", correct_rejection)
-        print("misses: ", miss)
-        print("false_alarm: ",false_alarm)
-        tf.get_default_session().close()
+        print("False classification rate: ", fcr)
+        
+        print("Presence: ",presence) # prozentualer anteil von 1 in
+        print("F-measure:" , f_measure)       
+
+        print("Total amount: ", total_amount)        
+
+        print("Sample number: ", sample_number)
+        print("Correct samples: ", correct_samples)
+        print("Wrong samples: " , wrong_samples)
+        
+        return hit,false_alarm,correct_rejection,miss,recall, miss_rate,specificity,fallout ,precision,npv, accuracy, fcr,presence,f_measure, total_amount, y_probabilities, y_predictions , y_labeled, y_samples, tpr,fpr, roc_values
+        
 #        correct = np.equal(y_prediction,y_labeled)
 ##        correct = tf.equal(y_prediction,y_labeled)
 #        print(correct)
@@ -273,6 +364,7 @@ def get_accuracy(model,test_folder):
 #        print(accuracy)
         
 #        print('Accuracy:',accuracy.eval(train_dict))
+
 
 # Vergleich der test_Daten mit einem Baseline Signal in dem Fall ein y_output 
 # der nur 0 hat -> die zahl die daraus folgt gibt aufschluss darüber das: 
@@ -311,9 +403,10 @@ def get_prediction(wav_file,model):
     input_x = input_data.reshape((1,input_data.shape[0],input_data.shape[1]))    
 
     output_y = sess.run(prediction, feed_dict={x:input_x})
+#    print(output_y)
     output_y = np.argmax(output_y,1)
+#    print(output_y)
     
-    print(output_y)   
     return output_y
 
 # konvertiert einen y_output in zeit maße um
@@ -445,11 +538,128 @@ def textGrid():
     T.append(Vokale)
     T.write("Moses")
 
+#plot dependent or independent roc curve
+#def plot_roc(models):
+    
+
+def get_measurements(model_name):
+    
+    model_type = model_name[0:-2]
+    model_Folder = model_name.title()
+
+    model = join("models", model_type, model_Folder,  model_name+".ckpt")
+    test_folder = join("model_sets/test_sets/", model_type, model_Folder)
+    
+    hit,false_alarm,correct_rejection,miss,recall, miss_rate, specificity,fallout ,precision,npv, accuracy, fcr,presence,f_measure, total_amount,y_probabilities,y_predictions, y_labeled, y_samples, tpr,fpr,roc_values= get_accuracy(model,test_folder)
+    
+    
+#    ROC_File = join("ROC_Values", model_type, model_name+"_ROC")
+##    y_all = [y_probabilities,y_predictions,  y_labeled, y_samples]
+#    
+#    roc  = [(tpr[i],fpr[i],roc_values[i]) for i in range(len(tpr))]
+#    
+#    with open(ROC_File,"wb+") as y:
+#        pickle.dump(roc,y)
+##    
+    
+    JSON_file = join("measurements", model_type+"_measurement")
+    
+    
+    if isfile(JSON_file): 
+        f = open(JSON_file)
+        data = json.load(f)
+    else:
+        data = {}
+        data[model_type] = []
+           
+    data[model_type].append({
+            "Name": model_name,
+            "Hits": hit,
+            "False_alarms": false_alarm,
+            "Correct_rejections": correct_rejection,
+            "Misses":  miss,
+            "Recall": recall,
+            "Miss rate": miss_rate,
+            "Specificity" : specificity,
+            "Fallout":fallout,
+            "Precision": precision,
+            "npv":npv,
+            "Accuracy": accuracy,
+            "fcr":fcr,
+            "Presence": presence,
+            "F-measure": f_measure,
+            "Total amount": total_amount,
+            })       
+    outfile = open(JSON_file, "wb+")
+    json.dump(data,outfile)
+        
+
+def determine_correct_wrong(wav_path,model):
+    label_y = get_label(wav_path)
+    label_y = np.argmax(label_y,1)
+    
+    test = get_prediction(wav_path,model)
+    correct = np.equal(label_y,test)
+    
+    model_name = os.path.basename(model)[0:-5]
+    model_type = os.path.basename(model)[0:-7]
+    
+    wrong_correct_file = join ("wrong_correct",model_type, model_name +"_wc")
+    output =  open(wrong_correct_file, "wb+")
+    
+    
+    if isfile(wrong_correct_file): 
+        f = open(wrong_correct_file,"rb+")
+        data = json.load(f)
+    else:
+        data = {}
+        data["wrong"] = []
+        data["correct"] =[]  
+
+    if not any(c == False for c in correct):
+        data["correct"].append(wav_path)        
+                
+    elif not any(c == True for c in correct):
+        data["wrong"].append(wav_path)     
+        
+    json.dump(data,output)
+    
+#    time = convert(test)
+#    time2 = convert(label_y)
+#    print(time)
+#    print(time2)
+#    print(len(label_y))
+#    print(correct)
+
+model = sys.argv[1]
+train_neural_network(model)
+
+#get_measurements(sys.argv[1])
+
+
+#i = 1
+#typ = "dependent"
+#
+#model = join("models",typ,typ.title()+"_"+str(i),typ+"_"+str(i)+".ckpt")
+#
+#testfolder = join("model_sets","test_sets",typ,typ.title()+"_"+str(i))
+#get_accuracy(model, testfolder)
+
+#determine_100_correct(sys.argv[1],sys.argv[2])    
+#label_y = get_label("model_sets/test_sets/dependent/Dependent_1/001_part_1")
+
 #print("Argument List:", str(sys.argv))
 #print(sys.argv[1])
-
-#train_neural_network("model_sets/training_sets/dependent/" + str(sys.argv[1]))
         
+#get_measurements(sys.argv[1])   
+#plot("model_sets/test_sets/dependent/Dependent_1/001_part_1")
+#sig,rate = librosa.load("model_sets/test_sets/dependent/Dependent_1/001_part_1")
+#print(rate)
+#mfcc_fe = mfcc(sig,rate)
+#print(mfcc_fe)
+#plt.plot(mfcc_fe)
+#plt.show()
+#plot(sig)
 
 #fs = 16000
 #duration = 3
@@ -459,38 +669,6 @@ def textGrid():
 #sd.play(myrecording, fs)
 #sd.wait()
 #print("finish")
-
-#for root, directories, files in os.walk("Test_Data_SpeakerDependent"):
-#        for directory in directories:
-#            get_accuracy("saved_models/First_model/model.ckpt",join(root,directory))
-
-#get_accuracy("models/Trainings_Data_Speaker_Dependent/100er_model/model_step_100_.ckpt","Test_Data_Speaker_Dependent")
-
-#train_neural_network("Trainings_Data_Speaker_Independent")
-#get_accuracy("models/Trainings_Data_Speaker_Independent/100er_model/model_step_100_.ckpt","Test_Data_Speaker_Independent")
-
-#get_accuracy("saved_models/First_model/model.ckpt","Test_Data/")
-#get_accuracy("saved_models/First_model/model.ckpt","Test_Data_Speaker_Dependent/")
-#get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data/")
-#get_accuracy("saved_models/100er_models/model_step_100_.ckpt","Test_Data_Speaker_Dependent/")
-#get_baseLine_accuracy("Test_Data/")
-
-#label_y = get_label("Test_Data/142_slices/142_part_1")
-#label_y = np.argmax(label_y,1)
-#test = get_prediction("Test_Data/142_slices/142_part_1","saved_models/First_model/model.ckpt")
-#print(label_y)
-#test = get_prediction("Test_Data/142_slices/142_part_1","saved_models/100er_models/model_step_100_.ckpt")
-#time = convert(test)
-#time2 = convert(label_y)
-#print(time)
-#print(time2)
-#print(len(label_y))
-
-#test = get_prediction("Test_Data/beat.wav","saved_models/First_model/model.ckpt")
-#test = get_prediction("Test_Data/had.wav","saved_models/First_model/model.ckpt")
-#test = get_prediction(myrecording,"saved_models/First_model/model.ckpt")
-#time = convert(test)
-#print(time)
 
 #print(label_y)
 #y_prediction = get_prediction("Test_Data/142_slices/142_part_1")
@@ -516,8 +694,5 @@ def textGrid():
 #speaker independent test scores 
 #-> dropout erhöhen wenn delta zu hoch
 #spectrogramm mit fbank grenzen mit ax vlines
-
-# Verteidigung: 20 minuten vortrag  + 10 min fragen 
-#fragen ob nach oder vor abgabe der thesis
 
 

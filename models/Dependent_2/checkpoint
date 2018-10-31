@@ -1,2 +1,0 @@
-model_checkpoint_path: "dependent_2.ckpt"
-all_model_checkpoint_paths: "dependent_2.ckpt"
