@@ -27,7 +27,7 @@ model_name = model_type + "_"
 def train_models():
     start = sys.argv[2]
     end = sys.argv[3]
-    for i in range(start,end):
+    for i in range(int(start),int(end)):
         os.system("python3 model_trainer.py " +"model_sets/training_sets/"+model_type+"/"+model_name.title()+str(i))
 
 def create_measurements():
