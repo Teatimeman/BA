@@ -22,8 +22,6 @@ cmd_input = sys.argv[1]
 model_type = cmd_input.lower()
 model_name = model_type + "_"
 
-
-
 def train_models():
     start = sys.argv[2]
     end = sys.argv[3]

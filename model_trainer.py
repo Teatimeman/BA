@@ -167,7 +167,7 @@ def recurrent_neural_network():
    
     return output
 
-def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm_epochs=101):
+def train_neural_network(trainings_folder, batch_size=1 ,learning_rate = 0.01,hm_epochs=101):
 
     with tf.device("/GPU:0"):
         x_data, y_data = prepare_data(trainings_folder)
@@ -190,25 +190,46 @@ def train_neural_network(trainings_folder,learning_rate = 0.01, batch_size=1 ,hm
             epoch_data = list(zip(x_data, y_data))
             np.random.shuffle(epoch_data)
             
-            for x_sample,y_sample in epoch_data:                 
-                epoch_x = x_sample.reshape((1,x_sample.shape[0],x_sample.shape[1]))                
-                epoch_y = y_sample.reshape((1,y_sample.shape[0],y_sample.shape[1]))                                                
-                _, c= sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
-                epoch_loss += c                
+            #stochastic gradient descent
+#            for x_sample,y_sample in epoch_data:                 
+#                epoch_x = x_sample.reshape((1,x_sample.shape[0],x_sample.shape[1]))                
+#                epoch_y = y_sample.reshape((1,y_sample.shape[0],y_sample.shape[1]))                                                
+#                _, sample_loss= sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
+#                epoch_loss += sample_loss     
+
+            # MiniBatch/Batch Gradient Descent 
+            for start,end in zip(range(0,len(epoch_data), batch_size),range(batch_size,len(epoch_data)+1,batch_size)):
+
+                epoch_x = [pair[0] for pair in epoch_data[start:end]] # x values for batch b with b = epoch_data[start:end]
+                epoch_y = [pair[1] for pair in epoch_data[start:end]] # y values for batch f 
+
+                _,batch_loss =sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
+                epoch_loss += batch_loss
+                
+            if len(epoch_data) % batch_size !=0:  
+                missing_samples = batch_size - len(epoch_data)%batch_size #  1 < missing_samples  < batch_size
+                missing_start = len(epoch_data) - missing_samples
+                
+                last_batch = epoch_data[0:missing_samples] + epoch_data[missing_start:len(epoch_data)]
+                
+                last_batch_x = [pair[0] for pair in last_batch]
+                
+                last_batch_y = [pair[1] for pair in last_batch]
+                
+            _,batch_loss =sess.run([optimizer, cost], feed_dict={x: last_batch_x, y: last_batch_y})
+            epoch_loss += batch_loss
+            
             average_loss = epoch_loss / len(epoch_data)
             print('Epoch', str(epoch), 'completed out of',hm_epochs,
                   'loss:', str(epoch_loss),
-                  'average loss', str(average_loss))        
+                  'average loss', str(average_loss))   
             
-#            save_path = saver.save(sess, "models/"+trainings_folder+"/model_step_"+str(epoch)+"_.ckpt")
-            
-#            if epoch == 100:
-#                save_path = saver.save(sess, "models/"+trainings_folder+"/100er_model/model_step_"+str(epoch)+"_.ckpt")
-#                print("Model saved in path: %s" % save_path)
+        #saving model    
         model_kind = os.path.basename(os.path.dirname(trainings_folder))
         model_number = os.path.basename(trainings_folder)
         model_name = model_number.lower()
-        save_path = saver.save(sess,"models/"+model_kind + "/" + model_number+ "/" + model_name + ".ckpt")
+        model_folder = join("models", model_kind, model_number, model_name+ "._bs32.ckpt") 
+        save_path = saver.save(sess,model_folder)
         print("Model saved in path: %s" % save_path)
                     
 def get_accuracy(model,test_folder):
@@ -425,103 +446,6 @@ def convert(y_output):
         i = i +1
     return annotations
 
-def logscale_spec(spec, sr=16000, factor=20.):
-    timebins, freqbins = np.shape(spec)
-    
-    scale = np.linspace(0, 1, freqbins) ** factor
-    scale *= (freqbins-1)/max(scale)
-    scale = np.unique(np.round(scale))
-    scale = [int(i) for i in scale]
-    
-    # create spectrogram with new freq bins
-    newspec = np.complex128(np.zeros([timebins, len(scale)]))
-    for i in range(0, len(scale)):
-        if i == len(scale)-1:
-            newspec[:,i] = np.sum(spec[:,scale[i]:], axis=1)
-        else:        
-            newspec[:,i] = np.sum(spec[:,scale[i]:scale[i+1]], axis=1)
-    
-    # list center freq of bins
-    allfreqs = np.abs(np.fft.fftfreq(freqbins*2, 1./sr)[:freqbins+1])
-    freqs = []
-    for i in range(0, len(scale)):
-        if i == len(scale)-1:
-            freqs += [np.mean(allfreqs[scale[i]:])]
-        else:
-            freqs += [np.mean(allfreqs[scale[i]:scale[i+1]])]
-    
-    return newspec, freqs
-
-def plot(signal,binsize= 2**10,plotpath = None,colormap = "jet"):
-    pre_emphasis = 0.97
-    emphasized_signal = np.append(signal[0], signal[1:] - pre_emphasis * signal[:-1])
-    signal_length = len(emphasized_signal)
-    num_frames = int(np.ceil(float(np.abs(signal_length - window_length)) / window_step))
-    
-    pad_signal_length = num_frames * window_step + window_length
-    z = np.zeros(int(pad_signal_length - signal_length))
-    pad_signal = np.append(emphasized_signal, z) # Pad Signal to make sure that all frames have equal number of samples without truncating any samples from the original signal
-
-    indices = np.tile(np.arange(0, window_length), (num_frames, 1)) + np.tile(np.arange(0, num_frames * window_step, window_step), (window_length, 1)).T
-    frames = pad_signal[indices.astype(np.int32, copy=False)]
-    
-    frames *= np.hamming(window_length)
-    
-    NFFT = 512    
-    nfilt = 40
-    mag_frames = np.absolute(np.fft.rfft(frames, NFFT))  # Magnitude of the FFT
-    pow_frames = ((1.0 / NFFT) * ((mag_frames) ** 2))  # Power Spectrum
-    
-    low_freq_mel = 0
-    high_freq_mel = (2595 * np.log10(1 + (sr / 2) / 700))  # Convert Hz to Mel
-    mel_points = np.linspace(low_freq_mel, high_freq_mel, nfilt + 2)  # Equally spaced in Mel scale
-    hz_points = (700 * (10**(mel_points / 2595) - 1))  # Convert Mel to Hz
-    bin = np.floor((NFFT + 1) * hz_points / sr)
-    
-    fbank = np.zeros((nfilt, int(np.floor(NFFT / 2 + 1))))
-    for m in range(1, nfilt + 1):
-        f_m_minus = int(bin[m - 1])   # left
-        f_m = int(bin[m])             # center
-        f_m_plus = int(bin[m + 1])    # right
-    
-        for k in range(f_m_minus, f_m):
-            fbank[m - 1, k] = (k - bin[m - 1]) / (bin[m] - bin[m - 1])
-        for k in range(f_m, f_m_plus):
-            fbank[m - 1, k] = (bin[m + 1] - k) / (bin[m + 1] - bin[m])
-    filter_banks = np.dot(pow_frames, fbank.T)
-    filter_banks = np.where(filter_banks == 0, np.finfo(float).eps, filter_banks)  # Numerical Stability
-    
-    filter_banks = 20 * np.log10(filter_banks)  # dB
-    
-    filter_banks -= (np.mean(filter_banks, axis=0) + 1e-8)
-
-    ims = filter_banks
-    
-    sshow, freq = logscale_spec(ims, factor=1.0, sr=sr)
-
-    
-    timebins, freqbins = np.shape(ims)
-        
-    plt.figure(figsize=(15, 7.5))
-    plt.imshow(np.transpose(ims), origin="lower", aspect="auto", cmap=colormap, interpolation="none")
-    plt.colorbar(format = "%+2.0f dB")
-
-    plt.xlabel("time (s)")
-    plt.ylabel("frequency (hz)")
-    plt.xlim([0, timebins-1])
-    plt.ylim([0, freqbins])
-
-    xlocs = np.float32(np.linspace(0, timebins-1, 5))
-    plt.xticks(xlocs, ["%.02f" % l for l in ((xlocs*len(signal)/timebins)+(0.5*binsize))/sr])
-    ylocs = np.int16(np.round(np.linspace(0, freqbins-1, 10)))
-    plt.yticks(ylocs, ["%.02f" % freq[i] for i in ylocs])
-    
-    if plotpath:
-        plt.savefig(plotpath, bbox_inches="tight")
-    else:
-        plt.show()
-    plt.clf()
-    
     
 def textGrid():    
     test = get_prediction("Test_Data/beat.wav","models/Trainings_Data_Speaker_Independent/100er_model/model_step_100_.ckpt")
@@ -612,7 +536,7 @@ def determine_correct_wrong(wav_path,model):
         f = open(wrong_correct_file,"rb+")
         data = json.load(f)
     else:
-        data = {}
+       data = {}
         data["wrong"] = []
         data["correct"] =[]  
 
@@ -631,58 +555,20 @@ def determine_correct_wrong(wav_path,model):
 #    print(len(label_y))
 #    print(correct)
 
-model = sys.argv[1]
-train_neural_network(model)
+model_training_path = sys.argv[1]
+batch_size = 32
+train_neural_network(model_training_path,batch_size)
 
-#get_measurements(sys.argv[1])
+#model_name = sys.argv[1]
+#get_measurements(model_name)
 
+#wav_path = sys.argv[1]
+#model_path = sys.argv[2]
+#determine_100_correct(wave_path,sys.argv[2])    
 
-#i = 1
-#typ = "dependent"
-#
-#model = join("models",typ,typ.title()+"_"+str(i),typ+"_"+str(i)+".ckpt")
-#
-#testfolder = join("model_sets","test_sets",typ,typ.title()+"_"+str(i))
+#model_path = sys.argv[1]
+#test_folder =sys.argv[2]
 #get_accuracy(model, testfolder)
-
-#determine_100_correct(sys.argv[1],sys.argv[2])    
-#label_y = get_label("model_sets/test_sets/dependent/Dependent_1/001_part_1")
-
-#print("Argument List:", str(sys.argv))
-#print(sys.argv[1])
-        
-#get_measurements(sys.argv[1])   
-#plot("model_sets/test_sets/dependent/Dependent_1/001_part_1")
-#sig,rate = librosa.load("model_sets/test_sets/dependent/Dependent_1/001_part_1")
-#print(rate)
-#mfcc_fe = mfcc(sig,rate)
-#print(mfcc_fe)
-#plt.plot(mfcc_fe)
-#plt.show()
-#plot(sig)
-
-#fs = 16000
-#duration = 3
-#myrecording = sd.rec(duration * fs , samplerate = fs , channels=2 , dtype = 'float64')
-#print("recording...")
-#sd.wait()
-#sd.play(myrecording, fs)
-#sd.wait()
-#print("finish")
-
-#print(label_y)
-#y_prediction = get_prediction("Test_Data/142_slices/142_part_1")
-#table = np.equal(label_y,y_prediction)
-#print(table)
-
-#T = textgrid.TextGrid();
-#head,tail = os.path.split("Test_Data/142_slices/142_part_1")
-#number = tail[0:3]
-#T.read("TextGrids/"+number+"_wav.TextGrid")
-#w_tier = T.getFirst("Vokale").intervals
-## Generieren eines neuen Outputs/Labeling
-#xmin1,xmax1,xmin2,xmax2,xmin3,xmax3, new_duration = getSegments("Test_Data/142_slices/142_part_1",w_tier)
-#print(xmin1,xmax1,xmin2,xmax2,xmin3,xmax3,new_duration)
 
 #Notiz:
 #10% auslassen rest training und geschlecht balancieren
@@ -694,5 +580,3 @@ train_neural_network(model)
 #speaker independent test scores 
 #-> dropout erhöhen wenn delta zu hoch
 #spectrogramm mit fbank grenzen mit ax vlines
-
-
