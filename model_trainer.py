@@ -536,7 +536,7 @@ def determine_correct_wrong(wav_path,model):
         f = open(wrong_correct_file,"rb+")
         data = json.load(f)
     else:
-       data = {}
+        data = {}    
         data["wrong"] = []
         data["correct"] =[]  
 
