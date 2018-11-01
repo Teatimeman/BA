@@ -228,7 +228,8 @@ def train_neural_network(trainings_folder, batch_size=1 ,learning_rate = 0.01,hm
         model_kind = os.path.basename(os.path.dirname(trainings_folder))
         model_number = os.path.basename(trainings_folder)
         model_name = model_number.lower()
-        save_path = saver.save(sess,"models/"+model_kind + "/" + model_number+ "/" + model_name + ".ckpt")
+        model_folder = join("models", model_kind, model_number, model_name+ "._bs32.ckpt") 
+        save_path = saver.save(sess,model_folder)
         print("Model saved in path: %s" % save_path)
                     
 def get_accuracy(model,test_folder):
@@ -535,7 +536,7 @@ def determine_correct_wrong(wav_path,model):
         f = open(wrong_correct_file,"rb+")
         data = json.load(f)
     else:
-        data = {}
+       data = {}
         data["wrong"] = []
         data["correct"] =[]  
 
