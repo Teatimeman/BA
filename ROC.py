@@ -21,12 +21,12 @@ from sklearn.metrics import roc_curve, auc
 cmd_input = sys.argv[1]
 model_type = cmd_input.lower()
 model_name = model_type + "_"
+start = int(sys.argv[2])
+end = int(sys.argv[3])
 
 
 
 def train_models():
-    start = sys.argv[2]
-    end = sys.argv[3]
     for i in range(start,end):
         os.system("python3 model_trainer.py " +"model_sets/training_sets/"+model_type+"/"+model_name.title()+str(i))
 
