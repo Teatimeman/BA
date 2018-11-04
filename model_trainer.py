@@ -45,7 +45,7 @@ from os.path import isfile , isdir, join
 
 # Parsen Textgrid
 import textgrid
-
+import math
 # Netz modellierung
 from tensorflow.python.ops import rnn, rnn_cell
 # Operating system commands
@@ -86,11 +86,11 @@ def getSegments(partWaveFile,w_tier):
 def get_fbank(audioSignal):
     signal, samplerate = librosa.load(audioSignal,sr = sr)
     fbank_features = fbank(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40)
-    return fbank_features[0]
+    return fbank_features
     
 def get_mfcc(audioSignal):
     signal, samplerate  = librosa.load(audioSignal,sr = sr)
-    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40) #,winfunc= np.hamming
+    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40,winfunc=np.hamming) #,winfunc= np.hamming
     return mfcc_signal
 
 def get_label(audioSignal):
@@ -104,7 +104,7 @@ def get_label(audioSignal):
     # time_mark = 0.025/2 + [0.01,0.02,..., 0.01*mfcc_raw.shape[0]]
     time_mark = frame_length/2 + frame_step*np.arange(0, mfcc_raw.shape[0])
     time_mark = time_mark.astype('float32')
-
+   
 
     ## Generieren eines neuen Outputs/Labeling
     xmin1,xmax1,xmin2,xmax2,xmin3,xmax3, new_duration = getSegments(audioSignal,w_tier)
@@ -149,7 +149,7 @@ def prepare_data(folder):
     
 # batch_Size, Sequence_length, n_mfcc
 x = tf.placeholder(tf.float32, [None, None, n_mfcc])
-# batch_Size, Sequence_length_labels
+# batch_Size, Sequence_length,labels
 y = tf.placeholder(tf.float32, [None, None,2])
     
 def recurrent_neural_network():
@@ -167,9 +167,9 @@ def recurrent_neural_network():
    
     return output
 
-def train_neural_network(trainings_folder, batch_size=1 ,learning_rate = 0.01,hm_epochs=101):
+def train_neural_network(trainings_folder, GPU,batch_size=1 ,learning_rate = 0.01,hm_epochs=101,):
 
-    with tf.device("/GPU:0"):
+    with tf.device("/GPU:"+GPU):
         x_data, y_data = prepare_data(trainings_folder)
     #    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data)
     
@@ -189,36 +189,36 @@ def train_neural_network(trainings_folder, batch_size=1 ,learning_rate = 0.01,hm
             
             epoch_data = list(zip(x_data, y_data))
             np.random.shuffle(epoch_data)
-            
+                
             #stochastic gradient descent
-#            for x_sample,y_sample in epoch_data:                 
-#                epoch_x = x_sample.reshape((1,x_sample.shape[0],x_sample.shape[1]))                
-#                epoch_y = y_sample.reshape((1,y_sample.shape[0],y_sample.shape[1]))                                                
-#                _, sample_loss= sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
-#                epoch_loss += sample_loss     
+            for x_sample,y_sample in epoch_data:                 
+                epoch_x = x_sample.reshape((1,x_sample.shape[0],x_sample.shape[1]))                
+                epoch_y = y_sample.reshape((1,y_sample.shape[0],y_sample.shape[1]))                                                
+                _, sample_loss= sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
+                epoch_loss += sample_loss     
 
-            # MiniBatch/Batch Gradient Descent 
-            for start,end in zip(range(0,len(epoch_data), batch_size),range(batch_size,len(epoch_data)+1,batch_size)):
-
-                epoch_x = [pair[0] for pair in epoch_data[start:end]] # x values for batch b with b = epoch_data[start:end]
-                epoch_y = [pair[1] for pair in epoch_data[start:end]] # y values for batch f 
-
-                _,batch_loss =sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
-                epoch_loss += batch_loss
-                
-            if len(epoch_data) % batch_size !=0:  
-                missing_samples = batch_size - len(epoch_data)%batch_size #  1 < missing_samples  < batch_size
-                missing_start = len(epoch_data) - missing_samples
-                
-                last_batch = epoch_data[0:missing_samples] + epoch_data[missing_start:len(epoch_data)]
-                
-                last_batch_x = [pair[0] for pair in last_batch]
-                
-                last_batch_y = [pair[1] for pair in last_batch]
-                
-            _,batch_loss =sess.run([optimizer, cost], feed_dict={x: last_batch_x, y: last_batch_y})
-            epoch_loss += batch_loss
-            
+#            # MiniBatch/Batch Gradient Descent 
+#            for start,end in zip(range(0,len(epoch_data), batch_size),range(batch_size,len(epoch_data)+1,batch_size)):
+#
+#                epoch_x = [pair[0] for pair in epoch_data[start:end]] # x values for batch b with b = epoch_data[start:end]
+#                epoch_y = [pair[1] for pair in epoch_data[start:end]] # y values for batch f 
+#
+#                _,batch_loss =sess.run([optimizer, cost], feed_dict={x: np.asarray(epoch_x), y: np.asarray(epoch_y)})
+#                epoch_loss += batch_loss
+#                
+#            if len(epoch_data) % batch_size !=0:  
+#                missing_samples = batch_size - len(epoch_data)%batch_size #  1 < missing_samples  < batch_size
+#                missing_start = len(epoch_data) - missing_samples
+#                
+#                last_batch = epoch_data[0:missing_samples] + epoch_data[missing_start:len(epoch_data)]
+#                
+#                last_batch_x = [pair[0] for pair in last_batch]
+#                
+#                last_batch_y = [pair[1] for pair in last_batch]
+#                
+#            _,batch_loss =sess.run([optimizer, cost], feed_dict={x: last_batch_x, y: last_batch_y})
+#            epoch_loss += batch_loss
+#            
             average_loss = epoch_loss / len(epoch_data)
             print('Epoch', str(epoch), 'completed out of',hm_epochs,
                   'loss:', str(epoch_loss),
@@ -259,7 +259,6 @@ def get_accuracy(model,test_folder):
         roc_values = []
 
         sample_number= 0
-        
         wrong_samples = 0
         correct_samples = 0
         
@@ -340,6 +339,10 @@ def get_accuracy(model,test_folder):
         npv = float(correct_rejection) / (miss + correct_rejection)
         
         accuracy = float((hit + correct_rejection))/total_amount
+        balanced_accuracy = float(specificity+recall)/2
+        mcc = float(((hit*correct_rejection) - (false_alarm*miss)))/math.sqrt(float((hit+ false_alarm)*(hit+miss)*(correct_rejection+false_alarm)*(correct_rejection+miss)))
+    
+        
         fcr = float((false_alarm + miss))/total_amount
         
         presence =  float(hit + miss) / total_amount
@@ -363,20 +366,26 @@ def get_accuracy(model,test_folder):
         print("Precision: ",precision)        
         print("Negative predictive value (npv): ", npv)
         
-        
         print("Accuracy: ",accuracy)
+        print("Balanced Accuracy: ", balanced_accuracy)
+        print("MCC_accuracy: ",mcc)
+        
         print("False classification rate: ", fcr)
         
         print("Presence: ",presence) # prozentualer anteil von 1 in
         print("F-measure:" , f_measure)       
 
         print("Total amount: ", total_amount)        
-
+        
         print("Sample number: ", sample_number)
         print("Correct samples: ", correct_samples)
         print("Wrong samples: " , wrong_samples)
         
-        return hit,false_alarm,correct_rejection,miss,recall, miss_rate,specificity,fallout ,precision,npv, accuracy, fcr,presence,f_measure, total_amount, y_probabilities, y_predictions , y_labeled, y_samples, tpr,fpr, roc_values
+        
+        return hit,false_alarm,correct_rejection,miss,recall, miss_rate,specificity,
+    fallout ,precision,npv, accuracy, fcr,presence,f_measure, total_amount, 
+    y_probabilities, y_predictions ,
+    y_labeled, y_samples, tpr,fpr, roc_values,mcc
         
 #        correct = np.equal(y_prediction,y_labeled)
 ##        correct = tf.equal(y_prediction,y_labeled)
@@ -470,11 +479,11 @@ def get_measurements(model_name):
     
     model_type = model_name[0:-2]
     model_Folder = model_name.title()
-
+    
     model = join("models", model_type, model_Folder,  model_name+".ckpt")
     test_folder = join("model_sets/test_sets/", model_type, model_Folder)
     
-    hit,false_alarm,correct_rejection,miss,recall, miss_rate, specificity,fallout ,precision,npv, accuracy, fcr,presence,f_measure, total_amount,y_probabilities,y_predictions, y_labeled, y_samples, tpr,fpr,roc_values= get_accuracy(model,test_folder)
+    hit,false_alarm,correct_rejection,miss,recall, miss_rate, specificity,fallout,precision,npv, accuracy, fcr,presence,f_measure, total_amount,y_probabilities,y_predictions, y_labeled, y_samples, tpr,fpr,roc_values,mcc= get_accuracy(model,test_folder)
     
     
 #    ROC_File = join("ROC_Values", model_type, model_name+"_ROC")
@@ -513,6 +522,7 @@ def get_measurements(model_name):
             "Presence": presence,
             "F-measure": f_measure,
             "Total amount": total_amount,
+            "MCC_Accuracy" : mcc,
             })       
     outfile = open(JSON_file, "wb+")
     json.dump(data,outfile)
@@ -555,10 +565,10 @@ def determine_correct_wrong(wav_path,model):
 #    print(len(label_y))
 #    print(correct)
 
-model_training_path = sys.argv[1]
-batch_size = 32
-train_neural_network(model_training_path,batch_size)
-
+#model_training_path = sys.argv[1]
+#batch_size = 32
+#train_neural_network(model_training_path,batch_size)
+#n.array([[1,2], [2, 3, 4]])
 #model_name = sys.argv[1]
 #get_measurements(model_name)
 
@@ -568,7 +578,11 @@ train_neural_network(model_training_path,batch_size)
 
 #model_path = sys.argv[1]
 #test_folder =sys.argv[2]
-#get_accuracy(model, testfolder)
+#get_accuracy(model_path, test_folder)
+mfcc_hh = get_mfcc("Wave_sliced/001_slices/001_part_1")
+hh = float(frame_length/2) +frame_step*np.arange(0, mfcc_hh.shape[0])
+print(hh)
+
 
 #Notiz:
 #10% auslassen rest training und geschlecht balancieren

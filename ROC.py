@@ -27,13 +27,14 @@ def train_models():
     end = sys.argv[3]
     for i in range(int(start),int(end)):
         os.system("python3 model_trainer.py " +"model_sets/training_sets/"+model_type+"/"+model_name.title()+str(i))
+#train_models()
 
 def create_measurements():
     os.system("rm ROC_Values/"+model_type+"/"+"*_ROC")
     os.system("rm measurements/"+model_type+"*")
     for i in range(0,9):
         os.system("python model_trainer.py " + model_name+str(i))
-
+create_measurements()
 def create_wrong_correct():
     for i in range(0,9):
         model = model_name+str(i)+".ckpt"
@@ -133,7 +134,5 @@ def plot_roc_curve():
     plt.show()
             
 
-train_models()
-#create_measurements()
 #plot_roc_curve()
 

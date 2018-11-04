@@ -6,13 +6,19 @@ Created on Wed Oct 31 06:25:15 2018
 @author: teatimeman
 """
 
+
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from python_speech_features import mfcc
+from python_speech_features import fbank
+
 
 import librosa
 import wave
 import sys
 from scipy import signal
+from scipy.signal import stft
 import scipy.io.wavfile as wav
 from numpy.lib import stride_tricks
 
@@ -71,22 +77,23 @@ def plt_periodogram(audio_path):
     plt.savefig("pictures/power_spectrum")
     
 """ short time fourier transform of audio signal """
-def stft(sig, frameSize, overlapFac=0.5, window=np.hanning):
-#    win = np.hamming(frameSize)
-    hopSize = int(frameSize - np.floor(overlapFac * frameSize))
-    
-    # zeros at beginning (thus center of 1st window should be for sample nr. 0)
-    samples = np.append(np.zeros(int(np.floor(frameSize/2))), sig)    
-    # cols for windowing
-    cols = np.ceil( (len(samples) - frameSize) / float(hopSize)) + 1
-    # zeros at end (thus samples can be fully covered by frames)
-    samples = np.append(samples, np.zeros(frameSize))
-    
-    
-    frames = stride_tricks.as_strided(samples, shape=(int(cols), frameSize), strides=(samples.strides[0]*hopSize, samples.strides[0])).copy()
-#    frames *= win
-    
-    return np.fft.rfft(frames)    
+#def stft(sig, frameSize, overlapFac=0.4, window=np.hanning):
+##    win = np.hamming(frameSize)
+# 
+#    hopSize = int(frameSize - np.floor(overlapFac * frameSize))
+#    
+#    # zeros at beginning (thus center of 1st window should be for sample nr. 0)
+#    samples = np.append(np.zeros(int(np.floor(frameSize/2))), sig)    
+#    # cols for windowing
+#    cols = np.ceil( (len(samples) - frameSize) / float(hopSize)) + 1
+#    # zeros at end (thus samples can be fully covered by frames)
+#    samples = np.append(samples, np.zeros(frameSize))
+#    
+#    
+#    frames = stride_tricks.as_strided(samples, shape=(int(cols), frameSize), strides=(samples.strides[0]*hopSize, samples.strides[0])).copy()
+##    frames *= win
+#    
+#    return np.fft.rfft(frames)    
     
 """ scale frequency axis logarithmically """    
 def logscale_spec(spec, sr=44100, factor=2):
@@ -116,9 +123,9 @@ def logscale_spec(spec, sr=44100, factor=2):
     return newspec, freqs
 
 """ plot spectrogram"""
-def plt_stft(audiopath, binsize=2**10, plotpath=None, colormap="jet"):
+def plt_stft(audiopath, binsize=2**9, plotpath=None, colormap="jet"):
     samplerate, samples = wav.read(audiopath)
-    s = stft(samples, binsize)
+    s = stft(samples, binsize,window =None)
     
     sshow, freq = logscale_spec(s, factor=2, sr=samplerate)
     
@@ -146,6 +153,20 @@ def plt_stft(audiopath, binsize=2**10, plotpath=None, colormap="jet"):
         plt.show()
         
     plt.clf()
+
+def plt_mfcc(audio_signal):
+    (rate,sig) = wav.read(audio_signal)
+    mfcc_feat = mfcc(sig,rate)
+    
+    ig, ax = plt.subplots()
+    mfcc_data= np.swapaxes(mfcc_feat, 0 ,1)
+    ax.imshow(mfcc_data, interpolation='nearest', cmap="winter", origin='lower', aspect='auto')
+    ax.set_title('MFCC')
+    #Showing mfcc_data
+    plt.show()
+    #Showing mfcc_feat
+#    plt.plot(mfcc_feat)
+#    plt.show()
     
     
-plt_stft("Wave_sliced/001_slices/001_part_1")
+plt_mfcc("Wave_sliced/001_slices/001_part_1")
