@@ -9,12 +9,15 @@ Created on Wed Oct 31 06:25:15 2018
 
 import numpy as np
 import matplotlib.pyplot as plt
+#import librosa.feature.melspectrogram
+
 from matplotlib import cm
 from python_speech_features import mfcc
 from python_speech_features import fbank
 
 
 import librosa
+
 import wave
 import sys
 from scipy import signal
@@ -59,9 +62,7 @@ def plt_preemphasis(audio_path):
     plt.title("signal in time domain")
     plt.plot(signal)
     plt.show()
-    
-    
-    
+        
 def plt_hamming():
     window = np.hamming(100)
     
@@ -73,8 +74,8 @@ def plt_periodogram(audio_path):
     plt.semilogy(f, p)
     plt.xlabel("Frequency [Hz]")
     plt.ylabel("Power magnitude")
-    plt.show()
-    plt.savefig("pictures/power_spectrum")
+#    plt.show()
+    plt.savefig("pictures/power_spectrum.png")
     
 """ short time fourier transform of audio signal """
 #def stft(sig, frameSize, overlapFac=0.4, window=np.hanning):
@@ -154,19 +155,31 @@ def plt_stft(audiopath, binsize=2**9, plotpath=None, colormap="jet"):
         
     plt.clf()
 
+def plt_mel_fbank(audio_signal):
+    (rate,sig) = wav.read(audio_signal)
+    fbank_feat = fbank(sig,rate,nfilt=40)
+    ig, ax = plt.subplots()
+    mfcc_data= np.swapaxes(fbank_feat, 0 ,1)
+    ax.imshow(mfcc_data, interpolation='nearest', cmap="coolwarm", origin='lower', aspect='auto')
+    ax.set_title('Mel_FBank')
+#    plt.savefig("pictures/Mel_FBank")
+    plt.show()
+
+
 def plt_mfcc(audio_signal):
     (rate,sig) = wav.read(audio_signal)
-    mfcc_feat = mfcc(sig,rate)
+    mfcc_feat = mfcc(sig,rate,numcep=40,nfilt=40)
     
     ig, ax = plt.subplots()
     mfcc_data= np.swapaxes(mfcc_feat, 0 ,1)
-    ax.imshow(mfcc_data, interpolation='nearest', cmap="winter", origin='lower', aspect='auto')
+    ax.imshow(mfcc_data, interpolation='nearest', cmap="coolwarm", origin='lower', aspect='auto')
     ax.set_title('MFCC')
-    #Showing mfcc_data
+    plt.savefig("pictures/MFCC")
     plt.show()
-    #Showing mfcc_feat
-#    plt.plot(mfcc_feat)
-#    plt.show()
+
     
+plt_mel_fbank("Wave_sliced/001_slices/001_part_1")
+
+
+#print("hallo_king".title())
     
-plt_mfcc("Wave_sliced/001_slices/001_part_1")

@@ -54,13 +54,13 @@ from tensorflow.python.ops import rnn, rnn_cell
 frame_length = 0.025
 frame_step = 0.01
 n_mfcc = 40
+n_filter = 13
 sr = 16000
+window_function = None
 window_length = frame_length * sr
 window_length = int(round(window_length))
 window_step = frame_step *sr
 window_step = int(round(window_step))
-
-## TODO: schneide in kleinere Trainingsdaten
 
 def getSegments(partWaveFile,w_tier):    
     number = 0
@@ -85,12 +85,12 @@ def getSegments(partWaveFile,w_tier):
 
 def get_fbank(audioSignal):
     signal, samplerate = librosa.load(audioSignal,sr = sr)
-    fbank_features = fbank(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40)
+    fbank_features = fbank(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=n_filter)
     return fbank_features
     
 def get_mfcc(audioSignal):
     signal, samplerate  = librosa.load(audioSignal,sr = sr)
-    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=40,numcep=40,winfunc=np.hamming) #,winfunc= np.hamming
+    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=n_filter,numcep=n_mfcc,winfunc=np.hamming) 
     return mfcc_signal
 
 def get_label(audioSignal):
@@ -197,7 +197,7 @@ def train_neural_network(trainings_folder, GPU,batch_size=1 ,learning_rate = 0.0
                 _, sample_loss= sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
                 epoch_loss += sample_loss     
 
-#            # MiniBatch/Batch Gradient Descent 
+##            # MiniBatch/Batch Gradient Descent 
 #            for start,end in zip(range(0,len(epoch_data), batch_size),range(batch_size,len(epoch_data)+1,batch_size)):
 #
 #                epoch_x = [pair[0] for pair in epoch_data[start:end]] # x values for batch b with b = epoch_data[start:end]
@@ -226,9 +226,11 @@ def train_neural_network(trainings_folder, GPU,batch_size=1 ,learning_rate = 0.0
             
         #saving model    
         model_kind = os.path.basename(os.path.dirname(trainings_folder))
-        model_number = os.path.basename(trainings_folder)
-        model_name = model_number.lower()
-        model_folder = join("models", model_kind, model_number, model_name+ "._bs32.ckpt") 
+        t_folder = os.path.basename(trainings_folder)
+        model_number = t_folder.lower()[-1]
+        model_name = model_kind + "_hamming_" + "n"+str(n_mfcc)+"_"+ model_number
+        model_folder = join("models", model_kind, t_folder, model_name+ ".ckpt")
+        
         save_path = saver.save(sess,model_folder)
         print("Model saved in path: %s" % save_path)
                     
@@ -261,7 +263,6 @@ def get_accuracy(model,test_folder):
         sample_number= 0
         wrong_samples = 0
         correct_samples = 0
-        
         
         for x_sample,y_sample in test_data:
             
@@ -366,26 +367,22 @@ def get_accuracy(model,test_folder):
         print("Precision: ",precision)        
         print("Negative predictive value (npv): ", npv)
         
-        print("Accuracy: ",accuracy)
-        print("Balanced Accuracy: ", balanced_accuracy)
-        print("MCC_accuracy: ",mcc)
-        
         print("False classification rate: ", fcr)
         
         print("Presence: ",presence) # prozentualer anteil von 1 in
         print("F-measure:" , f_measure)       
 
         print("Total amount: ", total_amount)        
+
+        print("Accuracy: ",accuracy)
+        print("Balanced Accuracy: ", balanced_accuracy)
+        print("MCC_accuracy: ",mcc)
         
         print("Sample number: ", sample_number)
         print("Correct samples: ", correct_samples)
         print("Wrong samples: " , wrong_samples)
-        
-        
-        return hit,false_alarm,correct_rejection,miss,recall, miss_rate,specificity,
-    fallout ,precision,npv, accuracy, fcr,presence,f_measure, total_amount, 
-    y_probabilities, y_predictions ,
-    y_labeled, y_samples, tpr,fpr, roc_values,mcc
+                
+        return hit,false_alarm,correct_rejection,miss,recall, miss_rate,specificity,fallout ,precision,npv, accuracy, fcr,presence,f_measure, total_amount, y_probabilities, y_predictions ,y_labeled, y_samples, tpr,fpr, roc_values,balanced_accuracy,mcc
         
 #        correct = np.equal(y_prediction,y_labeled)
 ##        correct = tf.equal(y_prediction,y_labeled)
@@ -401,7 +398,7 @@ def get_accuracy(model,test_folder):
 # mehr als die hälfte der Zahlen 0 sind, wenn die Accuracy eines models größer 
 # als die Baseline Accuracy ist bedeutet es das das model in die richtige 
 # richtung geht 
-def get_baseLine_accuracy(test_data):
+def get_baseline_accuracy(test_data):
     x_test ,y_test = prepare_data(test_data)
     correct_rejection = 0
     miss = 0
@@ -409,7 +406,6 @@ def get_baseLine_accuracy(test_data):
         y_labeled = np.argmax(y_sample,1)        
         baseLine = np.zeros(len(y_labeled))
         correct = np.equal(baseLine, y_labeled)
-    
         for i in range(len(correct)):
             if correct[i]:  
                 correct_rejection = correct_rejection + 1        
@@ -417,6 +413,7 @@ def get_baseLine_accuracy(test_data):
                 miss = miss + 1
     total_amount = miss + correct_rejection
     Accuracy = float(correct_rejection) / total_amount
+
     print("Baseline Accuracy: ", Accuracy)
 
 # Gibt ein 1-dimensionales array wieder mit 0 oder 1 
@@ -477,14 +474,19 @@ def textGrid():
 
 def get_measurements(model_name):
     
-    model_type = model_name[0:-2]
+    if model_name[0:2] == "in":
+        model_type = "independent"
+    else:
+        model_type = "dependent"
+    
     model_Folder = model_name.title()
-    
     model = join("models", model_type, model_Folder,  model_name+".ckpt")
-    test_folder = join("model_sets/test_sets/", model_type, model_Folder)
     
-    hit,false_alarm,correct_rejection,miss,recall, miss_rate, specificity,fallout,precision,npv, accuracy, fcr,presence,f_measure, total_amount,y_probabilities,y_predictions, y_labeled, y_samples, tpr,fpr,roc_values,mcc= get_accuracy(model,test_folder)
+    model_number= model_name[-1]
+    test_folder = model_type.title()+"_"+ model_number
+    test_folder = join("model_sets/test_sets/", model_type, test_folder)
     
+    hit,false_alarm,correct_rejection,miss,recall, miss_rate, specificity,fallout,precision,npv, accuracy, fcr,presence,f_measure, total_amount,y_probabilities,y_predictions, y_labeled, y_samples, tpr,fpr,roc_values,balanced_accuracy,mcc= get_accuracy(model,test_folder)
     
 #    ROC_File = join("ROC_Values", model_type, model_name+"_ROC")
 ##    y_all = [y_probabilities,y_predictions,  y_labeled, y_samples]
@@ -495,17 +497,16 @@ def get_measurements(model_name):
 #        pickle.dump(roc,y)
 ##    
     
-    JSON_file = join("measurements", model_type+"_measurement")
+    JSON_file = join("measurements", model_name[0:-2],model_name+"_measurement")
     
     
     if isfile(JSON_file): 
-        f = open(JSON_file)
-        data = json.load(f)
-    else:
-        data = {}
-        data[model_type] = []
+        os.system("rm "+ JSON_file)
+    
+    data = {}
+    data["Measurements"] = []
            
-    data[model_type].append({
+    data["Measurements"].append({
             "Name": model_name,
             "Hits": hit,
             "False_alarms": false_alarm,
@@ -523,6 +524,7 @@ def get_measurements(model_name):
             "F-measure": f_measure,
             "Total amount": total_amount,
             "MCC_Accuracy" : mcc,
+            "Balanced_Accuracy":balanced_accuracy,
             })       
     outfile = open(JSON_file, "wb+")
     json.dump(data,outfile)
@@ -565,10 +567,9 @@ def determine_correct_wrong(wav_path,model):
 #    print(len(label_y))
 #    print(correct)
 
-#model_training_path = sys.argv[1]
-#batch_size = 32
-#train_neural_network(model_training_path,batch_size)
-#n.array([[1,2], [2, 3, 4]])
+model_training_path = sys.argv[1]
+train_neural_network(model_training_path)
+    
 #model_name = sys.argv[1]
 #get_measurements(model_name)
 
@@ -579,10 +580,8 @@ def determine_correct_wrong(wav_path,model):
 #model_path = sys.argv[1]
 #test_folder =sys.argv[2]
 #get_accuracy(model_path, test_folder)
-mfcc_hh = get_mfcc("Wave_sliced/001_slices/001_part_1")
-hh = float(frame_length/2) +frame_step*np.arange(0, mfcc_hh.shape[0])
-print(hh)
 
+#get_baseline_accuracy("model_sets/test_sets/independent/Independent_0")
 
 #Notiz:
 #10% auslassen rest training und geschlecht balancieren
