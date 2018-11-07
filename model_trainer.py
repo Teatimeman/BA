@@ -580,10 +580,10 @@ def get_presence():
 #    print(time2)
 #    print(len(label_y))
 #    print(correct)
-
-model_training_path = sys.argv[3]
-train_neural_network(model_training_path)
-    
+#
+#model_training_path = sys.argv[3]
+#train_neural_network(model_training_path)
+#    
 #model_name = sys.argv[1]
 #get_measurements(model_name)
 
@@ -607,7 +607,10 @@ train_neural_network(model_training_path)
 #print(correct)
 #print(x)
 #print(y)
-    
+
+x = np.linspace(hz2mel(300),hz2mel(2200),42)
+x = mel2hz(x)
+print(x)
     
 #Notiz:
 #10% auslassen rest training und geschlecht balancieren
