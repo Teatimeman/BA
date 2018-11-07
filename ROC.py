@@ -24,10 +24,12 @@ def train_models():
     cmd_input = sys.argv[1]
     model_type = cmd_input.lower()
     model_name = model_type + "_"
-    start = sys.argv[2]
-    end = sys.argv[3]
+    n_mfcc = sys.argv[2]
+    n_filt= sys.argv[3]
+    start = sys.argv[4]
+    end = sys.argv[5]
     for i in range(int(start),int(end)):
-        os.system("python3 model_trainer.py " +"model_sets/training_sets/"+model_type+"/"+model_name.title()+str(i))
+        os.system("python3 model_trainer.py " +n_mfcc+" " +n_filt+" model_sets/training_sets/"+model_type+"/"+model_name.title()+str(i))
 #train_models()
 def create_measurements():
     cmd_input = sys.argv[1]
