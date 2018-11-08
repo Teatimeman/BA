@@ -17,7 +17,8 @@ import pickle
 
 from python_speech_features import mfcc
 from python_speech_features import fbank
-
+from python_speech_features import mel2hz
+from python_speech_features import hz2mel
 
 from scipy import interp
 from sklearn.metrics import roc_curve, auc
@@ -53,10 +54,9 @@ from tensorflow.python.ops import rnn, rnn_cell
 
 frame_length = 0.025
 frame_step = 0.01
-n_mfcc = 40
-n_filter = 13
+n_mfcc = sys.argv[1]
+n_filter = sys.argv[2]
 sr = 16000
-window_function = None
 window_length = frame_length * sr
 window_length = int(round(window_length))
 window_step = frame_step *sr
@@ -90,9 +90,9 @@ def get_fbank(audioSignal):
     
 def get_mfcc(audioSignal):
     signal, samplerate  = librosa.load(audioSignal,sr = sr)
-    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=n_filter,numcep=n_mfcc,winfunc=np.hamming) 
+    mfcc_signal = mfcc(signal,samplerate,winlen=frame_length,winstep=frame_step,nfilt=n_filter,numcep=n_mfcc,lowfreq=300,highfreq=2200,winfunc=np.hamming) 
     return mfcc_signal
-
+    
 def get_label(audioSignal):
     T = textgrid.TextGrid();
     head,tail = os.path.split(audioSignal)
@@ -160,16 +160,16 @@ def recurrent_neural_network():
     layer = {'weights':tf.Variable(tf.random_normal([rnn_size,2])),
              'biases':tf.Variable(tf.random_normal([2]))}
     lstm_cell = rnn_cell.LSTMCell(rnn_size,reuse = False)
-#    lstm_cell = rnn_cell.LSTMCell(rnn_size,reuse=True)
+
     rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob = 0.7)
     outputs, states = rnn.dynamic_rnn(lstm_cell, x, dtype=tf.float32)
     output = tf.matmul(outputs[-1], layer['weights']) + layer['biases']
    
     return output
 
-def train_neural_network(trainings_folder, GPU,batch_size=1 ,learning_rate = 0.01,hm_epochs=101,):
+def train_neural_network(trainings_folder,batch_size=1 ,learning_rate = 0.01,hm_epochs=101,):
 
-    with tf.device("/GPU:"+GPU):
+    with tf.device("/GPU:0"):
         x_data, y_data = prepare_data(trainings_folder)
     #    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data)
     
@@ -228,15 +228,16 @@ def train_neural_network(trainings_folder, GPU,batch_size=1 ,learning_rate = 0.0
         model_kind = os.path.basename(os.path.dirname(trainings_folder))
         t_folder = os.path.basename(trainings_folder)
         model_number = t_folder.lower()[-1]
-        model_name = model_kind + "_hamming_" + "n"+str(n_mfcc)+"_"+ model_number
-        model_folder = join("models", model_kind, t_folder, model_name+ ".ckpt")
+        model_name = model_kind+"_hamming_"+str(n_mfcc)+"_"+str(n_filter)+"_"+ model_number
+        model_save = join("models", model_kind, t_folder, model_name+ ".ckpt")
         
-        save_path = saver.save(sess,model_folder)
+        save_path = saver.save(sess,model_save)
         print("Model saved in path: %s" % save_path)
                     
 def get_accuracy(model,test_folder):
     
-
+    # Wenn fn = 0 dann heißt das die länge der vokale drinne ist auch wenn zu viel
+    # aber es sollte n
     prediction = recurrent_neural_network()
     
     saver = tf.train.Saver();
@@ -560,16 +561,29 @@ def determine_correct_wrong(wav_path,model):
         
     json.dump(data,output)
     
+def get_presence():
+    positive = 0
+    negative = 0
+    for root, dic,files in os.walk("Wave_sliced"):
+        for f in files:
+            y = get_label(join(root,f))
+            y = np.argmax(y,1)
+            for i in y:
+                if i == 0:
+                    negative += 1
+                else:
+                    positive += 1
+    print(positive,negative)
 #    time = convert(test)
 #    time2 = convert(label_y)
 #    print(time)
 #    print(time2)
 #    print(len(label_y))
 #    print(correct)
-
-model_training_path = sys.argv[1]
-train_neural_network(model_training_path)
-    
+#
+#model_training_path = sys.argv[3]
+#train_neural_network(model_training_path)
+#    
 #model_name = sys.argv[1]
 #get_measurements(model_name)
 
@@ -582,7 +596,22 @@ train_neural_network(model_training_path)
 #get_accuracy(model_path, test_folder)
 
 #get_baseline_accuracy("model_sets/test_sets/independent/Independent_0")
+#get_presence()
+    
+#x = get_prediction("model_sets/test_sets/independent/Independent_1/009_slices/009_part_1","models/independent/Independent_1/independent_1.ckpt")
+#y = get_label("model_sets/test_sets/independent/Independent_1/009_slices/009_part_1")
+#x = get_prediction(sys.argv[1],sys.argv[2])
+#y = get_label(sys.argv[1])
+#y = np.argmax(y,1)
+#correct = np.equal(x,y)
+#print(correct)
+#print(x)
+#print(y)
 
+x = np.linspace(hz2mel(300),hz2mel(2200),42)
+x = mel2hz(x)
+print(x)
+    
 #Notiz:
 #10% auslassen rest training und geschlecht balancieren
 #10% (6) davon frauen und 10% (2) männer 
