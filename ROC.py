@@ -30,7 +30,7 @@ def train_models():
     end = sys.argv[5]
     for i in range(int(start),int(end)):
         os.system("python3 model_trainer.py " +n_mfcc+" " +n_filt+" model_sets/training_sets/"+model_type+"/"+model_name.title()+str(i))
-#train_models()
+train_models()
 def create_measurements():
     cmd_input = sys.argv[1]
     model_type = cmd_input.lower()
@@ -167,7 +167,7 @@ def create_mean_measures():
 
 #plot_roc_curve()
 
-create_mean_measures()
+#create_mean_measures()
 #x = (1,2,3,4,5,6)
 #y =(5,6,7,8,9)
 #print(9/3)

@@ -54,8 +54,8 @@ from tensorflow.python.ops import rnn, rnn_cell
 
 frame_length = 0.025
 frame_step = 0.01
-n_mfcc = sys.argv[1]
-n_filter = sys.argv[2]
+n_mfcc = int(sys.argv[1])
+n_filter = int(sys.argv[2])
 sr = 16000
 window_length = frame_length * sr
 window_length = int(round(window_length))
@@ -581,8 +581,8 @@ def get_presence():
 #    print(len(label_y))
 #    print(correct)
 #
-#model_training_path = sys.argv[3]
-#train_neural_network(model_training_path)
+model_training_path = sys.argv[3]
+train_neural_network(model_training_path)
 #    
 #model_name = sys.argv[1]
 #get_measurements(model_name)
@@ -591,8 +591,8 @@ def get_presence():
 #model_path = sys.argv[2]
 #determine_100_correct(wave_path,sys.argv[2])    
 
-#model_path = sys.argv[1]
-#test_folder =sys.argv[2]
+#model_path = sys.argv[3]
+#test_folder =sys.argv[4]
 #get_accuracy(model_path, test_folder)
 
 #get_baseline_accuracy("model_sets/test_sets/independent/Independent_0")
@@ -608,9 +608,11 @@ def get_presence():
 #print(x)
 #print(y)
 
-x = np.linspace(hz2mel(300),hz2mel(2200),42)
-x = mel2hz(x)
-print(x)
+#x = np.linspace(hz2mel(0),hz2mel(8000),n_filter+2)
+#x = mel2hz(x)
+#y = x[0:n_mfcc+1]
+#print(y)
+#print(x)
     
 #Notiz:
 #10% auslassen rest training und geschlecht balancieren
